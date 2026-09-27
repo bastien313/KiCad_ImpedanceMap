@@ -1,0 +1,32 @@
+{
+  "$schema": "https://go.kicad.org/api/schemas/v1",
+  "identifier": "org.impedancemap.kicad-plugin",
+  "name": "Impedance Map",
+  "description": "Simulateur 2D quasi-statique de l'impédance caractéristique le long des pistes et paires différentielles (stackup du board, JSON perso ou préréglages JLCPCB), avec overlay dans l'éditeur PCB et rapport HTML.",
+  "runtime": {
+    "type": "python",
+    "min_version": "3.9"
+  },
+  "actions": [
+    {
+      "identifier": "impedance-map-analyze",
+      "name": "Impedance Map",
+      "description": "Calculer l'impédance le long des pistes sélectionnées, d'une netclass ou des paires différentielles",
+      "show-button": true,
+      "scopes": ["pcb"],
+      "entrypoint": "impedance_map_action.py",
+      "icons-light": ["icons/impedance_map_24.png", "icons/impedance_map_48.png"],
+      "icons-dark": ["icons/impedance_map_dark_24.png", "icons/impedance_map_dark_48.png"]
+    },
+    {
+      "identifier": "impedance-map-clear",
+      "name": "Impedance Map : effacer l'overlay",
+      "description": "Supprimer uniquement les objets créés par Impedance Map (avec décompte et confirmation)",
+      "show-button": false,
+      "scopes": ["pcb"],
+      "entrypoint": "impedance_map_clear.py",
+      "icons-light": ["icons/impedance_map_clear_24.png", "icons/impedance_map_clear_48.png"],
+      "icons-dark": ["icons/impedance_map_clear_dark_24.png", "icons/impedance_map_clear_dark_48.png"]
+    }
+  ]
+}

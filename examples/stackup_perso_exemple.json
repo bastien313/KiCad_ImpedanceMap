@@ -1,0 +1,68 @@
+{
+  "name": "Exemple perso (base JLC04161H-7628)",
+  "source": "custom",
+  "notes": "Exemple de stackup perso : modifier épaisseurs (mm) et εr. kind = mask | copper | dielectric ; dielectric_type = core | prepreg ; mask_c2 = épaisseur du masque au-dessus d'une piste.",
+  "units": "mm",
+  "layers": [
+    {
+      "kind": "mask",
+      "name": "F.Mask",
+      "thickness": 0.03048,
+      "er": 3.8,
+      "material": "JLCPCB solder mask",
+      "mask_c2": 0.01524
+    },
+    {
+      "kind": "copper",
+      "name": "F.Cu",
+      "thickness": 0.035
+    },
+    {
+      "kind": "dielectric",
+      "name": "prepreg 1",
+      "thickness": 0.2104,
+      "er": 4.4,
+      "material": "Prepreg 7628*1",
+      "dielectric_type": "prepreg"
+    },
+    {
+      "kind": "copper",
+      "name": "In1.Cu",
+      "thickness": 0.0152
+    },
+    {
+      "kind": "dielectric",
+      "name": "core 2",
+      "thickness": 1.065,
+      "er": 4.6,
+      "material": "Core (1.1mm H/HOZ with copper)",
+      "dielectric_type": "core"
+    },
+    {
+      "kind": "copper",
+      "name": "In2.Cu",
+      "thickness": 0.0152
+    },
+    {
+      "kind": "dielectric",
+      "name": "prepreg 3",
+      "thickness": 0.2104,
+      "er": 4.4,
+      "material": "Prepreg 7628*1",
+      "dielectric_type": "prepreg"
+    },
+    {
+      "kind": "copper",
+      "name": "B.Cu",
+      "thickness": 0.035
+    },
+    {
+      "kind": "mask",
+      "name": "B.Mask",
+      "thickness": 0.03048,
+      "er": 3.8,
+      "material": "JLCPCB solder mask",
+      "mask_c2": 0.01524
+    }
+  ]
+}

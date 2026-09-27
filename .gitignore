@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+.venv-kicad/
+.pytest_cache/
+tests/_validation_results.json
+
+# KiCad
+*.kicad_prl
+*-backups/
+_autosave-*
+*.lck
+fp-info-cache
+examples/impedance_map/
+
+# Éditeurs / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Fichiers de travail locaux (non publiés)
+AGENTS.md
+CLAUDE.md
+.claude/
+docs/HANDOFF.md

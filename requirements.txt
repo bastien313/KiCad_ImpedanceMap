@@ -1,0 +1,8 @@
+# Dépendances du plugin (installées automatiquement par KiCad dans le venv du plugin).
+# wxPython n'est PAS listé : il est fourni par le Python de KiCad (Windows/macOS) via
+# --system-site-packages ; sous Linux, l'interface se replie sur tkinter si wx est absent.
+kicad-python>=0.7.0
+numpy>=1.24
+scipy>=1.10
+shapely>=2.0
+matplotlib>=3.7

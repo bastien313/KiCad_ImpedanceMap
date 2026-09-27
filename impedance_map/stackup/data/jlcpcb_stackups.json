@@ -1,0 +1,3442 @@
+{
+ "_source": "https://jlcpcb.com/impedance",
+ "_fetched": "2026-09-25",
+ "_parameters": {
+  "prepreg_dk": {
+   "7628": 4.4,
+   "3313": 4.1,
+   "1080": 3.91,
+   "2116": 4.16
+  },
+  "core_dk": 4.6,
+  "solder_mask": {
+   "c1_mm": 0.030479999999999997,
+   "c2_mm": 0.015239999999999998,
+   "c3_mm": 0.030479999999999997,
+   "er": 3.8
+  }
+ },
+ "presets": {
+  "JLC-2L-0.4mm (non officiel)": {
+   "name": "JLC-2L-0.4mm (non officiel)",
+   "source": "jlcpcb:JLC-2L-0.4mm (non officiel)",
+   "units": "mm",
+   "official": false,
+   "notes": "Préréglage DÉRIVÉ, non publié par JLCPCB comme stackup d'impédance : core FR-4 Dk 4.6 (valeur core de la page impédance), cuivre 1 oz, masque JLCPCB. À confirmer avant fabrication.",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 1",
+     "thickness": 0.33,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "FR-4 core"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    }
+   ]
+  },
+  "JLC-2L-0.6mm (non officiel)": {
+   "name": "JLC-2L-0.6mm (non officiel)",
+   "source": "jlcpcb:JLC-2L-0.6mm (non officiel)",
+   "units": "mm",
+   "official": false,
+   "notes": "Préréglage DÉRIVÉ, non publié par JLCPCB comme stackup d'impédance : core FR-4 Dk 4.6 (valeur core de la page impédance), cuivre 1 oz, masque JLCPCB. À confirmer avant fabrication.",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 1",
+     "thickness": 0.53,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "FR-4 core"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    }
+   ]
+  },
+  "JLC-2L-0.8mm (non officiel)": {
+   "name": "JLC-2L-0.8mm (non officiel)",
+   "source": "jlcpcb:JLC-2L-0.8mm (non officiel)",
+   "units": "mm",
+   "official": false,
+   "notes": "Préréglage DÉRIVÉ, non publié par JLCPCB comme stackup d'impédance : core FR-4 Dk 4.6 (valeur core de la page impédance), cuivre 1 oz, masque JLCPCB. À confirmer avant fabrication.",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 1",
+     "thickness": 0.73,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "FR-4 core"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    }
+   ]
+  },
+  "JLC-2L-1.0mm (non officiel)": {
+   "name": "JLC-2L-1.0mm (non officiel)",
+   "source": "jlcpcb:JLC-2L-1.0mm (non officiel)",
+   "units": "mm",
+   "official": false,
+   "notes": "Préréglage DÉRIVÉ, non publié par JLCPCB comme stackup d'impédance : core FR-4 Dk 4.6 (valeur core de la page impédance), cuivre 1 oz, masque JLCPCB. À confirmer avant fabrication.",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 1",
+     "thickness": 0.93,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "FR-4 core"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    }
+   ]
+  },
+  "JLC-2L-1.2mm (non officiel)": {
+   "name": "JLC-2L-1.2mm (non officiel)",
+   "source": "jlcpcb:JLC-2L-1.2mm (non officiel)",
+   "units": "mm",
+   "official": false,
+   "notes": "Préréglage DÉRIVÉ, non publié par JLCPCB comme stackup d'impédance : core FR-4 Dk 4.6 (valeur core de la page impédance), cuivre 1 oz, masque JLCPCB. À confirmer avant fabrication.",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 1",
+     "thickness": 1.13,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "FR-4 core"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    }
+   ]
+  },
+  "JLC-2L-1.6mm (non officiel)": {
+   "name": "JLC-2L-1.6mm (non officiel)",
+   "source": "jlcpcb:JLC-2L-1.6mm (non officiel)",
+   "units": "mm",
+   "official": false,
+   "notes": "Préréglage DÉRIVÉ, non publié par JLCPCB comme stackup d'impédance : core FR-4 Dk 4.6 (valeur core de la page impédance), cuivre 1 oz, masque JLCPCB. À confirmer avant fabrication.",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 1",
+     "thickness": 1.53,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "FR-4 core"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    }
+   ]
+  },
+  "JLC-2L-2.0mm (non officiel)": {
+   "name": "JLC-2L-2.0mm (non officiel)",
+   "source": "jlcpcb:JLC-2L-2.0mm (non officiel)",
+   "units": "mm",
+   "official": false,
+   "notes": "Préréglage DÉRIVÉ, non publié par JLCPCB comme stackup d'impédance : core FR-4 Dk 4.6 (valeur core de la page impédance), cuivre 1 oz, masque JLCPCB. À confirmer avant fabrication.",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 1",
+     "thickness": 1.93,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "FR-4 core"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524
+    }
+   ]
+  },
+  "JLC04161H-1080": {
+   "name": "JLC04161H-1080",
+   "source": "jlcpcb:JLC04161H-1080",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 1.265,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (1.3mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-1080A": {
+   "name": "JLC04161H-1080A",
+   "source": "jlcpcb:JLC04161H-1080A",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.084,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 1.065,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (1.1mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.084,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-2116": {
+   "name": "JLC04161H-2116",
+   "source": "jlcpcb:JLC04161H-2116",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 1.265,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (1.3mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-2116A": {
+   "name": "JLC04161H-2116A",
+   "source": "jlcpcb:JLC04161H-2116A",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.6,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.6mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-2116B": {
+   "name": "JLC04161H-2116B",
+   "source": "jlcpcb:JLC04161H-2116B",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.865,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.9mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-2116C": {
+   "name": "JLC04161H-2116C",
+   "source": "jlcpcb:JLC04161H-2116C",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 1.065,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (1.1mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-2116D": {
+   "name": "JLC04161H-2116D",
+   "source": "jlcpcb:JLC04161H-2116D",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.7,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.7mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-2116E": {
+   "name": "JLC04161H-2116E",
+   "source": "jlcpcb:JLC04161H-2116E",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.865,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.9mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-3313": {
+   "name": "JLC04161H-3313",
+   "source": "jlcpcb:JLC04161H-3313",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 1.265,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (1.3mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-3313A": {
+   "name": "JLC04161H-3313A",
+   "source": "jlcpcb:JLC04161H-3313A",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.107,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 1.065,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (1.1mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.107,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-7628": {
+   "name": "JLC04161H-7628",
+   "source": "jlcpcb:JLC04161H-7628",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 1.065,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (1.1mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-7628A": {
+   "name": "JLC04161H-7628A",
+   "source": "jlcpcb:JLC04161H-7628A",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.865,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.9mm H/HOZ with copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-7628B": {
+   "name": "JLC04161H-7628B",
+   "source": "jlcpcb:JLC04161H-7628B",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.4,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.4mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-7628C": {
+   "name": "JLC04161H-7628C",
+   "source": "jlcpcb:JLC04161H-7628C",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.15,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.15mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-7628E": {
+   "name": "JLC04161H-7628E",
+   "source": "jlcpcb:JLC04161H-7628E",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.6,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.6mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-7628F": {
+   "name": "JLC04161H-7628F",
+   "source": "jlcpcb:JLC04161H-7628F",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.25,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.25mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC04161H-7628G": {
+   "name": "JLC04161H-7628G",
+   "source": "jlcpcb:JLC04161H-7628G",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.5,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.5mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-1080": {
+   "name": "JLC06161H-1080",
+   "source": "jlcpcb:JLC06161H-1080",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.55,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.55mm H/Hwithout copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.55,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.55mm H/Hwithout copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-1080A": {
+   "name": "JLC06161H-1080A",
+   "source": "jlcpcb:JLC06161H-1080A",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.6,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.6mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.6,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.6mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-1080B": {
+   "name": "JLC06161H-1080B",
+   "source": "jlcpcb:JLC06161H-1080B",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.1,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.10mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.7,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.7 H/HOZ without copper)"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 6",
+     "thickness": 0.1,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.10mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-2116": {
+   "name": "JLC06161H-2116",
+   "source": "jlcpcb:JLC06161H-2116",
+   "units": "mm",
+   "official": true,
+   "notes": "Dk du prepreg 2313 absent du tableau JLCPCB : 4.1 (valeur 3313) utilisé",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.127,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0964,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.3,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.30mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.2084,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.2084,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 6",
+     "thickness": 0.3,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.30mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.0964,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2313*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 8",
+     "thickness": 0.127,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-2116A": {
+   "name": "JLC06161H-2116A",
+   "source": "jlcpcb:JLC06161H-2116A",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.13,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.13mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.7,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.7 H/HOZ without copper)"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 6",
+     "thickness": 0.13,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.13mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-2116B": {
+   "name": "JLC06161H-2116B",
+   "source": "jlcpcb:JLC06161H-2116B",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.5,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.5mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 5",
+     "thickness": 0.5,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.5mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-2116C": {
+   "name": "JLC06161H-2116C",
+   "source": "jlcpcb:JLC06161H-2116C",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.127,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.1194,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.3,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.30mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.1194,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.127,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.1194,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 7",
+     "thickness": 0.3,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.30mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 8",
+     "thickness": 0.1194,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 9",
+     "thickness": 0.127,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-3313": {
+   "name": "JLC06161H-3313",
+   "source": "jlcpcb:JLC06161H-3313",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.55,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.55mm H/Hwithout copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.1088,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.55,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.55mm H/Hwithout copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-3313C": {
+   "name": "JLC06161H-3313C",
+   "source": "jlcpcb:JLC06161H-3313C",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.107,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.4,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.4mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 6",
+     "thickness": 0.4,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.4mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.0784,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 8",
+     "thickness": 0.107,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-3313D": {
+   "name": "JLC06161H-3313D",
+   "source": "jlcpcb:JLC06161H-3313D",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.107,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.25,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.25mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.124,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 7",
+     "thickness": 0.25,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.25mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 8",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 9",
+     "thickness": 0.107,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-3313E": {
+   "name": "JLC06161H-3313E",
+   "source": "jlcpcb:JLC06161H-3313E",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.1,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.10mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.7,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.7 H/HOZ without copper)"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 6",
+     "thickness": 0.1,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.10mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.0994,
+     "er": 4.1,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 3313*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-7628": {
+   "name": "JLC06161H-7628",
+   "source": "jlcpcb:JLC06161H-7628",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 2",
+     "thickness": 0.4,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.4mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.2028,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.4,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.4mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.2104,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-7628A": {
+   "name": "JLC06161H-7628A",
+   "source": "jlcpcb:JLC06161H-7628A",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 3",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 4",
+     "thickness": 0.1,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.10mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.1164,
+     "er": 4.16,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 2116*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 7",
+     "thickness": 0.1,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.10mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 8",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 9",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 10",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-7628B": {
+   "name": "JLC06161H-7628B",
+   "source": "jlcpcb:JLC06161H-7628B",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.35,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.35mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 5",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 6",
+     "thickness": 0.35,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.35mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.0764,
+     "er": 3.91,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 1080*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 8",
+     "thickness": 0.218,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  },
+  "JLC06161H-7628D": {
+   "name": "JLC06161H-7628D",
+   "source": "jlcpcb:JLC06161H-7628D",
+   "units": "mm",
+   "official": true,
+   "notes": "",
+   "layers": [
+    {
+     "kind": "mask",
+     "name": "F.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    },
+    {
+     "kind": "copper",
+     "name": "L1",
+     "thickness": 0.035
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 1",
+     "thickness": 0.216,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 2",
+     "thickness": 0.2084,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L2",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 3",
+     "thickness": 0.2,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.2mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L3",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 4",
+     "thickness": 0.2008,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L4",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "core 5",
+     "thickness": 0.2,
+     "er": 4.6,
+     "dielectric_type": "core",
+     "material": "Core (0.2mm H/HOZ without copper)"
+    },
+    {
+     "kind": "copper",
+     "name": "L5",
+     "thickness": 0.0152
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 6",
+     "thickness": 0.2084,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "dielectric",
+     "name": "prepreg 7",
+     "thickness": 0.216,
+     "er": 4.4,
+     "dielectric_type": "prepreg",
+     "material": "Prepreg 7628*1"
+    },
+    {
+     "kind": "copper",
+     "name": "L6",
+     "thickness": 0.035
+    },
+    {
+     "kind": "mask",
+     "name": "B.Mask",
+     "thickness": 0.03048,
+     "er": 3.8,
+     "mask_c2": 0.01524,
+     "material": "JLCPCB solder mask"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "impedance-map"
+version = "0.3.0"
+description = "Plugin KiCad 10 : simulateur 2D quasi-statique d'impédance le long des pistes"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "Bastien SCLAFER" }]
+keywords = ["kicad", "pcb", "impedance", "signal-integrity", "field-solver", "differential-pair"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+    "Natural Language :: French",
+]
+requires-python = ">=3.9"
+dependencies = ["kicad-python>=0.7.0", "numpy>=1.24", "scipy>=1.10", "shapely>=2.0", "matplotlib>=3.7"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pyflakes"]
+
+[project.urls]
+Homepage = "https://github.com/bastien313/KiCad_ImpedanceMap"
+Issues = "https://github.com/bastien313/KiCad_ImpedanceMap/issues"
+
+[project.scripts]
+impedance-map = "impedance_map.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["impedance_map*"]
+
+[tool.setuptools.package-data]
+"impedance_map.stackup" = ["data/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
