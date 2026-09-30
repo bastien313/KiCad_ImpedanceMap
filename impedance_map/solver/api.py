@@ -77,11 +77,29 @@ def solve_cross_section(xs: CrossSection, options: Optional[SolveOptions] = None
     C0s: List[np.ndarray] = []
     sol = None
     n_nodes = 0
-    for i, lv in enumerate(levels):
-        C, C0, sol = _capacitances(xs, lv, keep_field and i == len(levels) - 1)
+    i = 0
+    while i < len(levels):
+        lv = levels[i]
+        try:
+            C, C0, sol = _capacitances(xs, lv, keep_field and i == len(levels) - 1)
+        except MemoryError:
+            # maillage trop grand (fenêtre large, beaucoup de cuivre) : on garde les niveaux déjà
+            # calculés s'il y en a au moins deux, sinon on décale toute la série d'un niveau vers le bas
+            if len(Cs) >= 2:
+                levels = levels[:i]
+                if keep_field:
+                    sol = _capacitances(xs, levels[-1], True)[2]
+                break
+            if levels[0] == 0:
+                raise
+            levels = tuple(max(0, x - 1) for x in levels)
+            levels = tuple(sorted(set(levels)))
+            Cs, C0s, i = [], [], 0
+            continue
         Cs.append(C)
         C0s.append(C0)
         n_nodes = sol.n_nodes
+        i += 1
 
     fine = line_parameters(Cs[-1], C0s[-1])
     if not options.extrapolate or len(levels) < 2:

@@ -143,6 +143,15 @@ def read_board(board, stackup=None, progress=None) -> BoardModel:
 
     step("Lecture des pads")
     pads = list(board.get_pads())
+    owner: Dict[str, tuple] = {}          # kiid du pad -> (référence, côté)
+    try:
+        for fp in board.get_footprints():
+            side = "B" if layer_name(fp.layer) == "B.Cu" else "F"
+            ref = fp.reference_field.text.value
+            for fpp in fp.definition.pads:
+                owner[fpp.id.value] = (ref, side)
+    except Exception:  # noqa: BLE001 — confort (libellés, côté des broches) : jamais bloquant
+        owner = {}
     shapes: Dict[str, Dict[str, object]] = {}
     for lname in copper:
         le = layer_enum(lname)
@@ -158,7 +167,8 @@ def read_board(board, stackup=None, progress=None) -> BoardModel:
             pass
         bm.pads.append(PadObj(uid=p.id.value, net=p.net.name if p.net else "",
                               pos=(p.position.x * NM, p.position.y * NM), shapes=shapes.get(p.id.value, {}),
-                              drill=drill, ref=str(p.number)))
+                              drill=drill, ref=(f"{owner[p.id.value][0]}." if p.id.value in owner else "") + str(p.number),
+                              side=owner.get(p.id.value, ("", ""))[1]))
 
     step("Lecture des zones (remplissages)")
     for z in board.get_zones():

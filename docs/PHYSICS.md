@@ -78,11 +78,33 @@ Les singularités de champ aux arêtes donnent une convergence d'ordre ≈ 1 (ra
    (ou trapèze, facteur de gravure) à la cote de sa couche.
 4. **Rôles** : cible → SIGNAL ; autre net → GROUND ; sans net → FLOATING (un corps par îlot) ;
    même net que la cible : à moins de 2 w → **discontinuité**, sinon GROUND.
-5. **Discontinuités** (pas de calcul, marqueur) : coin (> 5°) et changement de largeur (± max(w,
-   1,5 h)), changement de couche (± max(w, 1,5 h, diamètre du via)), arc de rayon < demi-fenêtre,
-   extrémités (± w), cuivre cible plus large (pad, jonction) ou plus étroit (fin) que la piste de
-   ±25 %, via/pad traversant coupé à moins de max(1,5 w, h), brin N absent/non parallèle (> 15°) ou
-   trop éloigné (> 4 (w + gap)).
+5. **Géométrie finale d'abord** (nets simples) : les pistes ne servent qu'à guider le trajet (où
+   couper, dans quelle direction). La largeur du signal est celle du **cuivre final coupé** (union des
+   pistes, pads et remplissages de zones du net sur la couche, `CutOptions.free_width`), et la fenêtre
+   est dimensionnée sur cette largeur. Le point n'est calculé que si ce cuivre est **localement
+   uniforme** : largeur mesurée à ± d (d = max(w, 1,5 h)/2) à moins de 25 % de celle du point
+   (`uniform_width_tol`), sinon « pad / jonction » (pad du net à proximité), « jonction / changement
+   de largeur » ou « fin du cuivre ». Un pad noyé dans une zone ou affleurant la ligne est donc
+   calculé ; un pad qui dépasse est un modèle localisé (coupe fusionnée). Paires : largeur nominale et
+   test ±25 % dans la coupe (inchangé).
+   **Discontinuités géométriques** du tracé (pas de calcul, marqueur) : coin (> 5°, ± max(w, 1,5 h)),
+   changement de couche (± max(w, 1,5 h, diamètre du via)), arc de rayon < 2 w, extrémités libres
+   (± w/2, embout arrondi, avec un point au milieu pour le modèle localisé du pad terminal), via/pad
+   traversant **du même net** coupé à moins de max(1,5 w, h), brin N absent/non parallèle (> 15°) ou
+   trop éloigné (> 4 (w + gap)). Les vias des autres nets ne sont pas des discontinuités (§5).
+   **Paires** : même règle, largeurs P et N mesurées, uniformité vérifiée sur les deux brins.
+   **Broches traversantes** (connecteurs, THT) : traitées comme des fûts de via (modèle coaxial, antipad
+   mesuré, stubs) — changement de couche par la broche, broche traversée sur place (stubs), broche terminale
+   (fût en série jusqu'à la face du composant, ou stub si le composant est sur la face de la piste). Paire :
+   fûts P et N à moins de 3 mm avec la même transition → élément symétrique ; sinon élément d'un seul brin,
+   approximé par un demi-effet différentiel (série : (2 Z_via + Zdiff)/2 ; stub : 4 Z_via ; L : ×1).
+   **Symétrie d'une paire** (`analysis/pair.py`) : Δt = ΔL √εeff,odd / c ; écart cumulé ΔL(s) = s_P − s_N
+   (projection du point N en face) sur la partie couplée (distance P–N ≤ 1,5 × la distance typique) ;
+   conversion de mode due au seul skew |Scd21| ≈ |sin(π f Δt)|.
+   **Zones du même net servant de piste** (`sampling.zone_bridges`) : une extrémité libre de piste
+   dans une zone allongée (rectangle minimal ≥ 1,5:1, entrée à moins de 30° du grand axe) est
+   prolongée le long de l'axe jusqu'au bord de la zone ; deux extrémités libres dans la même zone sont
+   reliées par un segment droit (s'il reste dans la zone).
 6. **Référence** : un GROUND d'une autre couche couvrant [signal − w, signal + w] (recherche de la
    couche la plus proche vers le haut et vers le bas), sinon masses coplanaires des deux côtés à
    < 3 w. Sinon **perte de référence** : la valeur est calculée (boîte de calcul comme retour) mais
@@ -141,8 +163,9 @@ brins supposés identiques ; fente : × 2(1 − k)). Vérifications : tests/test
 | Voisins | 0 V | convention des solveurs 2D (lignes au repos) |
 | Cuivre sans net | flottant, charge nulle | physique d'un îlot isolé ; ni masse ni ignoré |
 | Même net loin | 0 V | autre portion de la ligne, quasi-statique |
-| Arcs | calculés si R ≥ demi-fenêtre (coupe radiale), sinon discontinuité | les arcs de routage serrés sont 3D ; les grands arcs sont localement droits |
-| Vias loin de la piste | fût ignoré, pastilles conservées | un fût 2D serait un mur infini, non physique |
+| Arcs | calculés si R ≥ 2 w (coupe radiale), sinon discontinuité | l'effet de courbure décroît en (w/R)² ; au-delà de 2 w (bord intérieur ≥ 1,5 w du centre) la ligne est localement droite. L'ancien seuil (demi-fenêtre ≈ 5 w) excluait les arcs de routage ordinaires. La coupe signale toujours le cuivre du même net à moins de 2 w (virage en U) |
+| Vias d'autres nets (clôture, couture) | fût ignoré, pastilles conservées, pas de discontinuité, avertissement | un fût 2D serait un mur infini ; mesuré sur une CPWG 50 Ω réelle : mur à la place du fût −5,9 % sur Z (borne haute), valeur 2D sans fût = convention des calculateurs CPWG |
+| Mode précis trop gros | repli sur les niveaux de grille calculables | un `MemoryError` sur le niveau le plus fin laissait le point en erreur |
 | Perte de référence | valeur non affichée | dépend de la boîte de calcul, sans sens physique |
 | Base du trapèze | côté core (ou substrat pour les couches externes) | sens de gravure habituel |
 | Zdiff paire asymétrique | matrice Zc | définition standard, exacte en milieu homogène |

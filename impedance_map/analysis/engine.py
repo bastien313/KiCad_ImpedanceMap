@@ -22,8 +22,9 @@ from shapely.ops import nearest_points
 from .. import __version__
 from ..extraction.board_model import BoardModel
 from ..extraction.crosssection import CutOptions, build_cut
-from ..extraction.sampling import SamplingOptions, build_paths, sample_path
-from .discontinuities import build_elements, main_path_id
+from ..extraction.sampling import SamplingOptions, build_paths, sample_path, zone_bridges
+from .discontinuities import build_elements, main_path_id, pair_elements
+from .pair import pair_symmetry
 from ..extraction.targets import Target
 from ..solver import SolveOptions, solve_cross_section
 from ..solver.geometry import CrossSection
@@ -37,6 +38,14 @@ class Cancelled(Exception):
 
 
 @dataclass
+class _Probe:
+    """Point de mesure (position, tangente, couche) pour Engine._non_uniform."""
+    pos: Tuple[float, float]
+    tangent: Tuple[float, float]
+    layer: str
+
+
+@dataclass
 class AnalysisOptions:
     step: float = 0.5e-3                  # pas d'échantillonnage (m)
     window: Optional[float] = None        # largeur de fenêtre imposée (m) ; sinon règle ci-dessous
@@ -46,7 +55,8 @@ class AnalysisOptions:
     etch_factor: float = 0.0              # 0 = rectangle
     corner_angle_deg: float = 5.0
     corner_zone: Optional[float] = None   # défaut max(w, 1,5·h_ref)
-    arc_min_radius_factor: float = 1.0    # arcs de rayon < facteur × demi-fenêtre -> discontinuité
+    arc_min_radius_factor: float = 2.0    # arcs de rayon < facteur × largeur de piste -> discontinuité
+    uniform_width_tol: float = 0.25       # variation relative de la largeur de cuivre à ± d tolérée
     quantum: float = 1e-6
     workers: Optional[int] = None         # None = auto ; 1 = série
     pair_max_distance_factor: float = 4.0 # distance P-N max = facteur × (w + gap nominal)
@@ -79,6 +89,10 @@ class SampleResult:
     cx: float = float("nan")          # centre de la coupe (axe de la paire ; = x,y en simple)
     cy: float = float("nan")
     si: Optional[dict] = None         # modèle localisé (intégrité du signal) : pad fusionné ou brin de stub
+    half: float = float("nan")        # demi-largeur de la fenêtre de coupe (carte du rapport)
+    wn: float = float("nan")          # largeur du brin N (paire)
+    nx: float = float("nan")          # point du brin N en face de ce point du brin P (paire)
+    ny: float = float("nan")
 
     @property
     def valid(self) -> bool:
@@ -94,6 +108,7 @@ class TargetReport:
     stats: dict = field(default_factory=dict)
     warnings: List[str] = field(default_factory=list)
     signal: Optional[dict] = None     # intégrité du signal (analysis/signal.py), si calculée
+    pair: Optional[dict] = None       # symétrie d'une paire : longueurs, skew, où il s'accumule (pair.py)
     main_path: Optional[int] = None   # chemin principal (le plus long) du net P / du net
     elements: List[dict] = field(default_factory=list)       # vias, coins, fentes, stubs (discontinuities.py)
     element_notes: List[str] = field(default_factory=list)
@@ -134,7 +149,7 @@ class AnalysisRun:
         tr = [TargetReport(target=t["target"], samples=[SampleResult(**s) for s in t["samples"]],
                            stats=t.get("stats", {}), warnings=t.get("warnings", []), signal=t.get("signal"),
                            main_path=t.get("main_path"), elements=t.get("elements", []),
-                           element_notes=t.get("element_notes", []))
+                           element_notes=t.get("element_notes", []), pair=t.get("pair"))
               for t in d["targets"]]
         return AnalysisRun(board=d["board"], stackup=d["stackup"], options=d["options"], targets=tr,
                            warnings=d.get("warnings", []), timing=d.get("timing", {}), cache=d.get("cache", {}),
@@ -238,6 +253,7 @@ class Engine:
         self.progress = progress or (lambda f, m: None)
         self.cancel = cancel or threading.Event()
         self.cache = cache or ResultCache(persist=self.opt.persist_cache)
+        self._segs_cache: Dict[str, list] = {}
         missing = [n for n in bm.copper_names if n not in stackup.copper_names]
         if missing:
             raise ValueError(f"Le stackup choisi ne contient pas les couches {missing} du board "
@@ -248,30 +264,74 @@ class Engine:
             raise Cancelled()
 
     # ------------------------------------------------------------------ échantillons
+    def _segs(self, net: str):
+        """Pistes du net + tronçons synthétiques qui traversent ses zones de cuivre."""
+        if net not in self._segs_cache:
+            segs = self.bm.segs_of(net)
+            self._segs_cache[net] = segs + zone_bridges(segs, lambda L: self.bm.net_zone_fill(net, L))
+        return self._segs_cache[net]
+
+    def _sample(self, path):
+        return sample_path(path, self._sampling(path), self.stackup.nearest_plane_distance, self._via_radius_at)
+
+    def _copper_width(self, pos, nrm, layer: str, net: str) -> float:
+        """Largeur du cuivre FINAL du net (pistes, pads, zones fusionnés) coupé en pos ; 0 si aucun."""
+        for iv in self.bm.layer_copper(layer).cut(pos, nrm, 30e-3):
+            if iv.net == net and iv.u0 - 1e-9 <= 0.0 <= iv.u1 + 1e-9:
+                return iv.width
+        return 0.0
+
     def _samples_single(self, t: Target):
         net = t.nets[0]
-        paths = build_paths(self.bm.segs_of(net))
+        paths = build_paths(self._segs(net))
         out, cuts, si_cuts = [], [], []
         for path in paths:
-            smp = sample_path(path, self._sampling(path), self.stackup.nearest_plane_distance, self._via_radius_at)
-            for s in smp:
+            for s in self._sample(path):
                 self._check_cancel()
+                nrm = _normal(s.tangent)
+                # largeur = cuivre final coupé (piste + pads + zones du net), pas la largeur de la piste
+                w = self._copper_width(s.pos, nrm, s.layer, net) or s.width
                 h = self.stackup.nearest_plane_distance(s.layer)
-                half = _window(self.opt, s.width, h) / 2
+                half = _window(self.opt, w, h) / 2
                 sr = SampleResult(t.label, net, path.path_id, s.s, s.pos[0], s.pos[1], s.tangent[0], s.tangent[1],
-                                  s.layer, s.width, s.status, s.reason, cx=s.pos[0], cy=s.pos[1])
+                                  s.layer, w, s.status, s.reason, cx=s.pos[0], cy=s.pos[1])
                 out.append(sr)
-                tg = [(net, 0.0, s.width)]
+                tg = [(net, 0.0, w)]
+                on_pad = self.bm.pads_at(s.pos, s.layer, net)
                 if s.status == "ok":
-                    cuts.append((sr, s.pos, _normal(s.tangent), half, tg, s.layer))
-                elif self.bm.pads_at(s.pos, s.layer, net):
+                    why = self._non_uniform(s, nrm, w, h, net)
+                    if why:
+                        sr.status, sr.reason = "discontinuity", why
+                if sr.status == "ok":
+                    sr.half = half
+                    cuts.append((sr, s.pos, nrm, half, tg, s.layer, True))
+                elif on_pad:
                     # point exclu à l'échantillonnage (coin, extrémité…) mais sur un pad du net : modèle localisé
-                    si_cuts.append((sr, s.pos, _normal(s.tangent), half, tg, s.layer, "main"))
+                    si_cuts.append((sr, s.pos, nrm, half, tg, s.layer, "main"))
         return out, cuts, si_cuts, paths
+
+    def _non_uniform(self, s, nrm, w: float, h: float, net: str) -> str:
+        """Raison de rejet si le cuivre final n'est pas localement uniforme autour de s, sinon "".
+
+        La coupe 2D suppose une ligne invariante le long de la propagation : on compare la largeur de
+        cuivre en s à celle mesurée à ± d (d = max(w, 1,5 h)/2) ; un écart relatif supérieur à
+        `uniform_width_tol` signale un pad qui dépasse, une jonction ou un changement de largeur.
+        """
+        d = 0.5 * max(w, 1.5 * h)
+        tol = self.opt.uniform_width_tol
+        for k in (-1.0, 1.0):
+            q = (s.pos[0] + k * d * s.tangent[0], s.pos[1] + k * d * s.tangent[1])
+            wq = self._copper_width(q, nrm, s.layer, net)
+            if abs(wq - w) > tol * w + 2e-6:
+                on_pad = self.bm.pads_at(s.pos, s.layer, net, tol=d) or self.bm.pads_at(q, s.layer, net)
+                if wq <= 0:
+                    return "fin du cuivre"
+                return "pad / jonction" if on_pad else "jonction / changement de largeur"
+        return ""
 
     def _samples_pair(self, t: Target):
         p_net, n_net = t.nets
-        n_segs = self.bm.segs_of(n_net)
+        n_segs = self._segs(n_net)
         n_lines: Dict[str, MultiLineString] = {}
         n_width: Dict[str, List] = {}
         for sg in n_segs:
@@ -279,12 +339,11 @@ class Engine:
             n_width.setdefault(sg.layer, []).append(sg)
         n_lines = {L: MultiLineString(v) for L, v in n_lines.items()}
         nc = self.bm.netclasses.get(t.netclass)
-        paths = build_paths(self.bm.segs_of(p_net))
+        paths = build_paths(self._segs(p_net))
         main_id = main_path_id(paths)
         out, cuts, si_cuts = [], [], []
         for path in paths:
-            smp = sample_path(path, self._sampling(path), self.stackup.nearest_plane_distance, self._via_radius_at)
-            for s in smp:
+            for s in self._sample(path):
                 self._check_cancel()
                 sr = SampleResult(t.label, p_net, path.path_id, s.s, s.pos[0], s.pos[1], s.tangent[0], s.tangent[1],
                                   s.layer, s.width, s.status, s.reason, cx=s.pos[0], cy=s.pos[1])
@@ -294,33 +353,55 @@ class Engine:
                     h = self.stackup.nearest_plane_distance(s.layer)
                     si_cuts.append((sr, s.pos, _normal(s.tangent), _window(self.opt, s.width, h) / 2,
                                     [(p_net, 0.0, s.width)], s.layer, "leg"))
+                # point du brin N en face (même couche de préférence) : carte, skew, coupe
+                mls = n_lines.get(s.layer)
+                any_n = mls if mls is not None else (MultiLineString([g for m in n_lines.values() for g in m.geoms])
+                                                     if n_lines else None)
+                q = nearest_points(any_n, Point(s.pos))[0] if any_n is not None else None
+                if q is not None:
+                    sr.nx, sr.ny = q.x, q.y
                 if s.status != "ok":
                     continue
-                mls = n_lines.get(s.layer)
                 if mls is None:
                     sr.status, sr.reason = "discontinuity", "brin N absent de cette couche"
                     continue
                 pt = Point(s.pos)
-                q = nearest_points(mls, pt)[0]
                 dist = pt.distance(q)
                 gap_nom = (nc.dp_gap if nc and nc.dp_gap else s.width)
                 if dist > self.opt.pair_max_distance_factor * (s.width + gap_nom):
                     sr.status, sr.reason = "discontinuity", f"paire séparée ({dist * 1e3:.2f} mm)"
                     continue
                 nseg = min(n_width[s.layer], key=lambda g: g.geometry().distance(q))
-                wn = nseg.width
                 tn = _tangent_near(nseg, (q.x, q.y))
                 if abs(s.tangent[0] * tn[1] - s.tangent[1] * tn[0]) > math.sin(math.radians(15)):
                     sr.status, sr.reason = "discontinuity", "brins non parallèles"
                     continue
+                nrm = _normal(s.tangent)
+                h = self.stackup.nearest_plane_distance(s.layer)
+                # largeurs = cuivre final coupé (comme pour les nets simples), uniformité sur les deux brins
+                wp = self._copper_width(s.pos, nrm, s.layer, p_net) or s.width
+                wn = self._copper_width((q.x, q.y), nrm, s.layer, n_net) or nseg.width
+                sr.width = wp
+                why = self._non_uniform(s, nrm, wp, h, p_net) or \
+                    self._non_uniform(_Probe((q.x, q.y), s.tangent, s.layer), nrm, wn, h, n_net)
+                if why:
+                    sr.status, sr.reason = "discontinuity", why
+                    if why.startswith("pad") and path.path_id == main_id:
+                        c = ((s.pos[0] + q.x) / 2, (s.pos[1] + q.y) / 2)
+                        up = (s.pos[0] - c[0]) * nrm[0] + (s.pos[1] - c[1]) * nrm[1]
+                        un = (q.x - c[0]) * nrm[0] + (q.y - c[1]) * nrm[1]
+                        half = _window(self.opt, max(wp, wn), h) / 2 + abs(up - un) / 2 + max(wp, wn)
+                        si_cuts.append((sr, c, nrm, half, [(p_net, up, wp), (n_net, un, wn, wn + gap_nom)],
+                                        s.layer, "main"))
+                    continue
                 c = ((s.pos[0] + q.x) / 2, (s.pos[1] + q.y) / 2)
                 sr.cx, sr.cy = c
-                nrm = _normal(s.tangent)
                 up = (s.pos[0] - c[0]) * nrm[0] + (s.pos[1] - c[1]) * nrm[1]
                 un = (q.x - c[0]) * nrm[0] + (q.y - c[1]) * nrm[1]
-                h = self.stackup.nearest_plane_distance(s.layer)
-                half = _window(self.opt, max(s.width, wn), h) / 2 + abs(up - un) / 2 + max(s.width, wn)
-                cuts.append((sr, c, nrm, half, [(p_net, up, s.width), (n_net, un, wn, wn + gap_nom)], s.layer))
+                half = _window(self.opt, max(wp, wn), h) / 2 + abs(up - un) / 2 + max(wp, wn)
+                sr.half, sr.wn = half, wn
+                cuts.append((sr, c, nrm, half, [(p_net, up, wp), (n_net, un, wn, wn + gap_nom)], s.layer,
+                             True))
         return out, cuts, si_cuts, paths
 
     def _via_radius_at(self, p, tol: float = 5e-6) -> float:
@@ -331,12 +412,9 @@ class Engine:
         return r
 
     def _sampling(self, path) -> SamplingOptions:
-        w = max(e.seg.width for e in path.elems)
-        h = min(self.stackup.nearest_plane_distance(e.seg.layer) for e in path.elems)
-        half = _window(self.opt, w, h) / 2
         return SamplingOptions(step=self.opt.step, corner_angle_deg=self.opt.corner_angle_deg,
                                corner_zone=self.opt.corner_zone,
-                               arc_min_radius=self.opt.arc_min_radius_factor * half)
+                               arc_min_radius_factor=self.opt.arc_min_radius_factor)
 
     # ------------------------------------------------------------------ exécution
     def run(self, targets: Sequence[Target]) -> AnalysisRun:
@@ -366,13 +444,19 @@ class Engine:
         sections: Dict[str, CrossSection] = {}
         pending: Dict[str, List[SampleResult]] = {}
         n_cut = len(all_cuts)
-        for i, (sr, c, nrm, half, tg, layer) in enumerate(all_cuts):
+        ignored_vias: Dict[str, int] = {}
+        for i, (sr, c, nrm, half, tg, layer, free) in enumerate(all_cuts):
             self._check_cancel()
             if i % 20 == 0:
                 self.progress(0.05 + 0.15 * i / max(n_cut, 1), f"Coupes : {i}/{n_cut}")
             xs, info = build_cut(self.bm, self.stackup, c, nrm, half, tg, layer,
-                                 CutOptions(quantum=self.opt.quantum, etch_factor=self.opt.etch_factor))
+                                 CutOptions(quantum=self.opt.quantum, etch_factor=self.opt.etch_factor,
+                                            free_width=free))
             sr.references = info.references
+            if free and info.signal_widths:
+                sr.width = info.signal_widths[0]
+            if info.ignored_vias:
+                ignored_vias[sr.target] = ignored_vias.get(sr.target, 0) + 1
             if not math.isnan(info.gap):
                 sr.gap = info.gap
             if xs is None or info.status in ("discontinuity", "error"):
@@ -430,12 +514,25 @@ class Engine:
                     sr.si = {"mode": mode, "z": res.z0, "e": res.eps_eff, "c": float(np.array(res.C)[0, 0])}
         for tr, t, paths in zip(reports, targets, target_paths):
             try:
+                if t.kind == "pair":
+                    n_paths = build_paths(self._segs(t.nets[1]))
+                    tr.main_path, tr.elements, tr.element_notes = pair_elements(
+                        self.bm, self.stackup, t, paths, n_paths, tr.samples, self.opt.return_via_distance,
+                        self.opt.corner_angle_deg)
+                    tr.pair = pair_symmetry(t, paths, n_paths, tr.samples)
+                    continue
                 tr.main_path, tr.elements, tr.element_notes = build_elements(
                     self.bm, self.stackup, t, paths, tr.samples, self.opt.return_via_distance,
                     self.opt.corner_angle_deg)
             except Exception as e:  # noqa: BLE001 — l'analyse d'impédance reste valable sans ces modèles
                 tr.element_notes = [f"modèles localisés indisponibles : {e}"]
         for tr in reports:
+            n = ignored_vias.get(tr.label, 0)
+            if n:
+                tr.warnings.append(
+                    f"{n} coupe(s) traversent des vias d'autres nets près de la piste (clôture de vias, "
+                    f"couture) : leurs pastilles sont prises en compte, pas leur fût. Une clôture dense "
+                    f"abaisse légèrement Z réelle (quelques %).")
             compute_stats(tr)
         self.cache.save()
         run = AnalysisRun(board=self.bm.name, stackup=self.stackup.to_dict(), options=self.opt.to_dict(),

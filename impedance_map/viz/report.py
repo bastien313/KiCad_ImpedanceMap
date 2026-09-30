@@ -28,6 +28,7 @@ import numpy as np
 
 from .. import __version__
 from ..analysis.engine import AnalysisRun, Engine, SampleResult, TargetReport
+from ..analysis.signal import QUALITY_BAD, QUALITY_BANDS, rl_to_ml
 from ..solver.geometry import FLOATING, GROUND, SIGNAL
 from .board_map import board_svg
 
@@ -110,30 +111,146 @@ def _fmt_f(f):
     return f"{f / 1e9:g} GHz" if f >= 1e9 else f"{f / 1e6:g} MHz"
 
 
+def _quality_spans(ax, as_loss: bool, lo: float, hi: float):
+    """Zones excellent / bon / acceptable / mauvais sur un axe |S11| (dB, négatif) ou perte (dB)."""
+    lims = [b[0] for b in QUALITY_BANDS]
+    names = [b[1] for b in QUALITY_BANDS] + [QUALITY_BAD[0]]
+    cols = [b[2] for b in QUALITY_BANDS] + [QUALITY_BAD[1]]
+    if as_loss:
+        edges = [lo] + [rl_to_ml(x) for x in lims] + [hi]           # perte croissante
+    else:
+        edges = [lo] + [-x for x in lims] + [hi]                     # |S11| de −∞ vers 0
+    for a, b, n, c in zip(edges[:-1], edges[1:], names, cols):
+        a, b = max(a, lo), min(b, hi)
+        if b <= a:
+            continue
+        ax.axhspan(a, b, color=c, zorder=0, linewidth=0)
+        ym = math.sqrt(a * b) if as_loss else (a + b) / 2
+        ax.annotate(n, (1, ym), xycoords=("axes fraction", "data"), xytext=(-3, 0), textcoords="offset points",
+                    ha="right", va="center", fontsize=6.5, color=INK2)
+
+
 def fig_signal_freq(sig: dict) -> Optional[str]:
-    """Deux graphes côte à côte (une unité par axe) : |S11| (dB) et perte de désadaptation (dB)."""
+    """Deux graphes côte à côte (une unité par axe) : |S11| (dB) et perte de désadaptation (dB),
+    avec les zones de qualité usuelles (return loss 20 / 15 / 10 dB)."""
     plt, _ = _mpl()
     f = np.array(sig["curve_f_hz"])
     scale, unit = (1e9, "GHz") if f.max() >= 2e9 else (1e6, "MHz")
     fk = sig["f_key"]
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9.5, 2.8))
-    a1.plot(f / scale, sig["curve_s11_db"], color=BLUE, linewidth=1.8)
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9.5, 3.0))
+    s11 = np.array(sig["curve_s11_db"])
+    lo1 = min(-40.0, float(np.nanmin(s11[1:])) - 3 if len(s11) > 1 else -40.0)
+    _quality_spans(a1, False, lo1, 0.0)
+    a1.plot(f / scale, s11, color=BLUE, linewidth=1.8, zorder=3)
+    a1.set_ylim(lo1, 0)
     a1.set_ylabel("|S11| (dB)")
     a1.set_title("Réflexion |S11| (plus bas = mieux)", loc="left", fontsize=8.5, color=INK)
-    a2.plot(f / scale, sig["curve_ml_db"], color=RED, linewidth=1.8)
-    a2.set_ylabel("perte (dB)")
+    ml = np.array(sig["curve_ml_db"])
+    hi2 = max(1.0, float(ml.max()) * 1.5)
+    # bas d'échelle : sous la fréquence clé / 20 la perte tend vers 0 (−∞ en log) ; on ne l'écrête pas
+    # à une valeur fixe (faux plateau), on la laisse sortir par le bas du graphe
+    band = ml[(f >= fk / 20) & (ml > 0)]
+    lo2 = min(1e-3, max(float(band.min()) if band.size else 1e-3, 1e-9) / 2)
+    ml = np.maximum(ml, lo2 / 10)
+    _quality_spans(a2, True, lo2, hi2)
+    a2.plot(f / scale, ml, color=RED, linewidth=1.8, zorder=3)
+    a2.set_yscale("log")
+    a2.set_ylim(lo2, hi2)
+    a2.set_ylabel("perte (dB, échelle log)")
     a2.set_title("Perte de désadaptation −10·log(1−|S11|²)", loc="left", fontsize=8.5, color=INK)
     lab = "Nyquist" if sig["spec"]["kind"] == "digital" else "f"
     for ax in (a1, a2):
-        ax.axvline(fk / scale, color=INK2, linewidth=0.8, linestyle="--")
+        ax.axvline(fk / scale, color=INK2, linewidth=0.8, linestyle="--", zorder=2)
         ax.annotate(f"{lab} {_fmt_f(fk)}", (fk / scale, 1), xycoords=("data", "axes fraction"), fontsize=7,
                     color=INK2, xytext=(3, -10), textcoords="offset points")
         ax.set_xlabel(f"fréquence ({unit})")
         ax.set_xlim(0, f.max() / scale)
-    a1.set_ylim(max(-60, min(sig["curve_s11_db"]) - 3), 0)
-    a2.set_ylim(0, max(0.05, max(sig["curve_ml_db"]) * 1.15))
     fig.tight_layout()
     return _png(fig)
+
+
+SECTION_COLORS = {"ok": "#9c9b95", "high": RED, "low": BLUE, "pad": "#7a5bbf", "nan": "#c9c8c2",
+                  "via": "#1b8a5a", "corner": "#b86e00", "slot": WARN, "stub": "#5b3f8f"}
+
+
+def fig_sections(sig: dict) -> Optional[str]:
+    """Contribution de chaque tronçon : perte « seul » à f clé le long du tracé (barres) et en
+    fréquence pour les principaux (courbes), avec la perte totale et les zones de qualité."""
+    secs = sig.get("sections") or []
+    if not secs:
+        return None
+    plt, _ = _mpl()
+    fk = sig["f_key"]
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9.5, 3.2), gridspec_kw={"width_ratios": [1.1, 1]})
+    vals = [max(s["ml_alone_db"], 1e-6) for s in secs]
+    hi = max(1.0, max(vals) * 2, sig["mismatch_loss_db_at_fkey"] * 2)
+    lo = min(1e-4, min(vals) / 2)
+    _quality_spans(a1, True, lo, hi)
+    L = max(sig["length_mm"], 1e-3)
+    for s in secs:
+        c = SECTION_COLORS.get(s["kind"], MID)
+        w = s["length_mm"] if s["length_mm"] > 0 else 0.012 * L
+        a1.bar(s["s0_mm"] if s["length_mm"] > 0 else s["s0_mm"] - w / 2, max(s["ml_alone_db"], 1e-6) - lo,
+               bottom=lo, width=w, align="edge", color=c, edgecolor=INK, linewidth=0.5, zorder=3)
+    for s in secs[:3]:
+        if s["ml_alone_db"] <= lo:
+            continue
+        x = (s["s0_mm"] + s["s1_mm"]) / 2
+        txt = f"{s['ml_alone_db']:.3g} dB" + (f"\nZ {s['z_mean']:.0f} Ω" if math.isfinite(s["z_mean"]) else "")
+        a1.annotate(txt, (x, s["ml_alone_db"]), xytext=(0, 3), textcoords="offset points", ha="center",
+                    va="bottom", fontsize=6.5, color=INK, zorder=4)
+    a1.axhline(max(sig["mismatch_loss_db_at_fkey"], lo), color=INK, linewidth=1.0, linestyle="--", zorder=4)
+    a1.annotate(f"ligne complète {sig['mismatch_loss_db_at_fkey']:.3g} dB",
+                (0, max(sig["mismatch_loss_db_at_fkey"], lo)), xycoords=("axes fraction", "data"),
+                xytext=(3, 3), textcoords="offset points", fontsize=6.5, color=INK)
+    a1.set_yscale("log")
+    a1.set_ylim(lo, hi)
+    a1.set_xlim(0, L)
+    a1.set_xlabel("abscisse le long du tracé (mm)")
+    a1.set_ylabel("perte si seul (dB, log)")
+    a1.set_title(f"Perte due à chaque tronçon seul à {_fmt_f(fk)}", loc="left", fontsize=8.5, color=INK)
+    f = np.array(sig["curve_f_hz"])
+    scale, unit = (1e9, "GHz") if f.max() >= 2e9 else (1e6, "MHz")
+    tot = np.maximum(np.array(sig["curve_ml_db"]), 1e-6)
+    curves = [c for c in (sig.get("section_curves") or []) if max(c["ml"]) > 1e-5]     # contributions visibles
+    allv = [tot[1:]] + [np.maximum(np.array(c["ml"])[1:], 1e-6) for c in curves]
+    hi2 = max(1.0, max(float(v.max()) for v in allv) * 1.5)
+    lo2 = min(1e-4, min(float(v.min()) for v in allv) / 2)
+    _quality_spans(a2, True, lo2, hi2)
+    a2.plot(f / scale, tot, color=INK, linewidth=2.2, label="ligne complète", zorder=3)
+    for c in curves:
+        a2.plot(f / scale, np.maximum(np.array(c["ml"]), 1e-6), linewidth=1.3, zorder=4,
+                color=SECTION_COLORS.get(c["kind"], MID), label=c["label"],
+                linestyle="-" if c["kind"] in ("high", "low") else "--")
+    a2.axvline(fk / scale, color=INK2, linewidth=0.8, linestyle="--", zorder=2)
+    a2.set_yscale("log")
+    a2.set_ylim(lo2, hi2)
+    a2.set_xlim(0, f.max() / scale)
+    a2.set_xlabel(f"fréquence ({unit})")
+    a2.set_ylabel("perte (dB, log)")
+    a2.set_title("Perte en fréquence : ligne complète et tronçons seuls", loc="left", fontsize=8.5, color=INK)
+    a2.legend(loc="lower right", frameon=True, fontsize=6, framealpha=0.85)
+    fig.tight_layout()
+    return _png(fig)
+
+
+def _sections_html(sig: dict, n: int = 8) -> str:
+    secs = sig.get("sections") or []
+    if not secs:
+        return ""
+    rows = "".join(
+        f"<tr><td style='text-align:left'>{_esc(s['name'])}</td><td>{s['ml_alone_db']:.4f}</td>"
+        f"<td>{s['rl_alone_db']:.1f}</td><td>{s['gain_if_fixed_db']:+.4f}</td><td>{s['rl_if_fixed_db']:.1f}</td></tr>"
+        for s in secs[:n])
+    more = f"<p class='sub'>… {len(secs) - n} autres tronçons de contribution plus faible.</p>" if len(secs) > n else ""
+    return ("<p><b>Contribution de chaque tronçon</b> à " + _fmt_f(sig["f_key"]) + " (ligne complète : return loss "
+            f"{sig['return_loss_db_at_fkey']:.1f} dB, perte {sig['mismatch_loss_db_at_fkey']:.4f} dB, "
+            f"<b>{_esc(sig.get('quality_at_fkey', ''))}</b>). « Seul » : le reste de la ligne à Zref ; « si corrigé » : "
+            "ce tronçon ramené à Zref (élément supprimé). Les réflexions interfèrent : les valeurs ne s'additionnent "
+            "pas, et un gain négatif signifie que ce tronçon compense en partie un autre défaut.</p>"
+            "<table><thead><tr><th style='text-align:left'>Tronçon</th><th>Perte seul (dB)</th>"
+            "<th>Return loss seul (dB)</th><th>Gain si corrigé (dB)</th><th>Return loss si corrigé (dB)</th></tr>"
+            "</thead><tbody>" + rows + "</tbody></table>" + more)
 
 
 def fig_tdr(sig: dict, tr: TargetReport) -> Optional[str]:
@@ -160,12 +277,16 @@ def fig_tdr(sig: dict, tr: TargetReport) -> Optional[str]:
     ax.set_ylabel("Zdiff (Ω)" if tr.target["kind"] == "pair" else "Z (Ω)")
     ax.set_xlim(0, sig["length_mm"] * 1.05)
     ax.legend(loc="best", frameon=False, fontsize=7.5)
-    ax.set_title("TDR simulée (extrémités adaptées sur Zref ; connecteurs et composants non modélisés)",
-                 loc="left", fontsize=8.5, color=INK)
+    title = "TDR simulée (extrémités adaptées sur Zref ; boîtier du connecteur et composants non modélisés)"
+    rt, rise = sig.get("tdr_round_trip_ps"), sig["spec"]["rise"] * 1e12
+    if rt is not None and rt < rise:
+        title += (f"\nFront de {rise:.0f} ps plus long que l'aller-retour du tracé ({rt:.0f} ps) : la TDR ne localise "
+                  "pas les défauts, elle montre leur effet global (Z vue minimale / maximale)")
+    ax.set_title(title, loc="left", fontsize=8.5, color=INK)
     return _png(fig)
 
 
-TYPE_FR = {"pad": "pad", "via": "via", "corner": "coin", "slot": "fente", "stub": "stub"}
+TYPE_FR = {"pad": "pad", "via": "via / broche", "corner": "coin", "slot": "fente", "stub": "stub"}
 
 
 def _elements_html(sig: dict) -> str:
@@ -186,6 +307,83 @@ def _elements_html(sig: dict) -> str:
             "</thead><tbody>" + rows + "</tbody></table>")
 
 
+def fig_pair_skew(pair: dict) -> Optional[str]:
+    """Écart de longueur cumulé P − N le long du tracé (mm, et ps sur l'axe de droite)."""
+    if not pair or len(pair.get("curve_s_mm", [])) < 2:
+        return None
+    plt, _ = _mpl()
+    x = np.array(pair["curve_s_mm"])
+    d = np.array(pair["curve_delta_mm"])
+    k = math.sqrt(pair["eps_eff"]) / 299_792_458.0 * 1e-3 * 1e12        # ps par mm
+    fig, ax = plt.subplots(figsize=(9.5, 2.6))
+    ax.axhline(0, color=INK2, linewidth=0.8)
+    ax.plot(x, d, color=BLUE, linewidth=1.8, drawstyle="steps-mid")
+    if "worst_step_at_mm" in pair:
+        ax.axvline(pair["worst_step_at_mm"], color=RED, linewidth=0.8, linestyle="--")
+        ax.annotate(f"plus forte marche : {pair['worst_step_mm']:.2f} mm", (pair["worst_step_at_mm"], 1),
+                    xycoords=("data", "axes fraction"), xytext=(-3, -10), textcoords="offset points", ha="right",
+                    fontsize=7, color=RED)
+    ax.set_xlabel("abscisse le long du brin P (mm)")
+    ax.set_ylabel("écart P − N (mm)")
+    sec = ax.secondary_yaxis("right", functions=(lambda v: v * k, lambda v: v / k))
+    sec.set_ylabel("skew (ps)")
+    unc = pair.get("uncoupled_delta_mm")
+    ax.set_title(f"Écart de longueur cumulé P − N sur la partie couplée (marches = où le déséquilibre se crée) ; "
+                 f"total {pair['delta_mm']:+.2f} mm = {pair['skew_ps']:+.1f} ps"
+                 + (f", dont {unc:+.2f} mm aux extrémités découplées" if unc is not None and abs(unc) > 0.005 else ""),
+                 loc="left", fontsize=8.5, color=INK)
+    fig.tight_layout()
+    return _png(fig)
+
+
+def _pair_html(tr: TargetReport) -> str:
+    p = getattr(tr, "pair", None)
+    if not p:
+        return ""
+    sig = getattr(tr, "signal", None) or {}
+    rows = [("Longueur P / N", f"{p['len_p_mm']:.2f} / {p['len_n_mm']:.2f} mm "
+                                f"({_esc(p['p_net'])} / {_esc(p['n_net'])})"),
+            ("Écart de longueur", f"<b>{p['delta_mm']:+.2f} mm</b> (P − N)"),
+            ("Skew intra-paire", f"<b>{p['skew_ps']:+.1f} ps</b>"),
+            ("Dont extrémités découplées", f"{p['uncoupled_delta_mm']:+.2f} mm (connecteur, sortie de boîtier…)"
+             if p.get("uncoupled_delta_mm") is not None else "—"),
+            ("Couches P / N", f"{', '.join(p['layers_p'])} / {', '.join(p['layers_n'])}"
+             + (" — <span class='warn'>les deux brins ne suivent pas les mêmes couches</span>"
+                if p["layers_p"] != p["layers_n"] else ""))]
+    if sig.get("skew_pct_rise") is not None:
+        rows.append(("Skew / temps de montée", f"{sig['skew_pct_rise']:.1f} % (repère : ≤ 10 %)"))
+    if sig.get("skew_pct_ui") is not None:
+        rows.append(("Skew / durée d'un bit (UI)", f"{sig['skew_pct_ui']:.2f} %"))
+    if "mode_conversion_db_at_fkey" in sig:
+        rows.append((f"Conversion différentiel → commun due au skew à {_fmt_f(sig['f_key'])}",
+                     f"{sig['mode_conversion_db_at_fkey']:.1f} dB (|sin(π f Δt)|)"))
+    table = "<table><tbody>" + "".join(f"<tr><td style='text-align:left'>{a}</td><td style='text-align:left'>{b}</td></tr>"
+                                       for a, b in rows) + "</tbody></table>"
+    img = fig_pair_skew(p)
+    return ("<div class='card'><b>Symétrie de la paire</b>" + table +
+            ("<img alt='écart de longueur cumulé' src='" + img + "'>" if img else "") + PAIR_HELP + "</div>")
+
+
+PAIR_HELP = """
+<details><summary>Ce qui compte sur une paire différentielle</summary><ol>
+<li><b>Zdiff le long du tracé</b> (courbe Z(s), carte) : dans la tolérance (souvent ±10 %) sur toute la
+longueur ; un tronçon hors tolérance réfléchit.</li>
+<li><b>Symétrie P / N</b> : un écart de longueur (skew) convertit une partie du signal différentiel en mode
+commun (œil qui se ferme, rayonnement CEM). Repère courant : skew ≤ 10 % du temps de montée ; les guides de
+conception demandent typiquement quelques millimètres pour l'USB 2.0 et environ 0,1 à 0,15 mm pour l'USB 3.x
+ou le PCIe. Compenser <i>près de la cause</i> (le virage qui crée l'écart), par petites ondulations sur le
+brin court.</li>
+<li><b>Discontinuités</b> : connecteur (broches traversantes : fût, stubs), vias, pads (ESD, résistances),
+virages ; voir la TDR et la contribution de chaque tronçon. Un élément présent sur un seul brin est aussi
+une asymétrie.</li>
+<li><b>Chemin de retour</b> : plan de référence continu sous la paire (pas de fente), vias de retour
+(masse) près de chaque changement de couche.</li>
+<li><b>Couplage et Zcomm</b> (détail au pire point) : un gap constant garde Zdiff constant ; Zcomm renseigne
+sur la terminaison et le filtrage du mode commun.</li>
+</ol></details>
+"""
+
+
 def _signal_table(run: AnalysisRun) -> str:
     rows = []
     for tr in run.targets:
@@ -202,14 +400,15 @@ def _signal_table(run: AnalysisRun) -> str:
                     f"<td>{_fmt_f(g['f_key'])}</td><td>{g['return_loss_db_at_fkey']:.1f}</td>"
                     f"<td>{g['mismatch_loss_db_at_fkey']:.3f}</td><td>{g['worst_mismatch_loss_db_in_band']:.3f}</td>"
                     f"<td>{g['gamma_static_pct']:.1f} %</td><td>{tdr[0]}</td><td>{tdr_lo}</td><td>{tdr[1]}</td>"
-                    f"<td>{n_el}</td><td>{g['interpolated_pct']:.0f} %</td></tr>")
+                    f"<td>{n_el}</td><td>{g['interpolated_pct']:.0f} %</td>"
+                    f"<td>{(format(g['skew_ps'], '+.1f') + ' ps') if 'skew_ps' in g else '—'}</td></tr>")
     if not rows:
         return ""
     return ("<table><thead><tr><th>Cible</th><th>Signal</th><th>Zref (Ω)</th><th>f clé</th>"
             "<th>Return loss (dB)</th><th>Perte désadapt. (dB)</th><th>Pire perte ≤ f clé (dB)</th>"
             "<th>|Γ| statique max</th><th>Z vue TDR (Ω)</th><th>Réflexion crête ligne seule</th>"
             "<th>Réflexion crête avec discontinuités</th><th>Discontinuités modélisées</th><th>Longueur interpolée</th>"
-            "</tr></thead><tbody>" + "".join(rows) + "</tbody></table>" + SIGNAL_HELP)
+            "<th>Skew P/N</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>" + SIGNAL_HELP)
 
 
 SIGNAL_HELP = """
@@ -217,6 +416,14 @@ SIGNAL_HELP = """
 <li><b>f clé</b> : fréquence de Nyquist (débit / 2) pour un signal numérique, fréquence d'intérêt en RF.</li>
 <li><b>Return loss</b> = −|S11| en dB à f clé : plus il est grand, moins le signal est réfléchi
 (≥ 20 dB : réflexion ≤ 10 % ; 10 dB : ≈ 32 %).</li>
+<li><b>Zones de qualité</b> des courbes (usage RF courant) : return loss ≥ 20 dB <b>excellent</b> (perte de
+désadaptation ≤ 0,044 dB, ≥ 99 % de la puissance transmise) ; 15–20 dB <b>bon</b> (≤ 0,14 dB) ; 10–15 dB
+<b>acceptable</b> (≤ 0,46 dB ; 10 dB est le critère classique d'adaptation d'une <i>antenne</i>) ; &lt; 10 dB
+<b>mauvais</b>. Une <i>piste</i> ne devrait pas consommer ce budget : viser ≥ 20 dB pour la liaison seule.
+Pour le numérique, ces zones sont indicatives ; la norme (USB, PCIe…) fixe son propre gabarit SDD11.</li>
+<li><b>Pertes dissipatives</b> (diélectrique, cuivre) : non calculées ici. Ordre de grandeur sur FR-4
+(tan δ ≈ 0,02) à 2,4 GHz pour une ligne 50 Ω : environ 0,05 à 0,1 dB/cm ; sur une piste RF courte, elles
+dépassent souvent la perte de désadaptation.</li>
 <li><b>Perte de désadaptation</b> = −10·log(1 − |S11|²) : puissance renvoyée vers la source au lieu d'atteindre
 la charge. Une désadaptation ne dissipe rien ; cette « perte » est faible en dB (≈ 0,1 dB pour 64 Ω au lieu de
 90 Ω), c'est pourquoi elle n'est <b>pas</b> le bon critère pour une liaison numérique.</li>
@@ -371,6 +578,7 @@ def build_report(run: AnalysisRun, engine: Optional[Engine] = None, bm=None, pat
         z = fig_zs(tr)
         if z:
             parts.append("<div class='card'><img alt='Z le long du tracé' src='" + z + "'></div>")
+        parts.append(_pair_html(tr))
         w = _worst(tr)
         if w is not None and w.result:
             r = w.result
@@ -404,7 +612,8 @@ def build_report(run: AnalysisRun, engine: Optional[Engine] = None, bm=None, pat
                 parts.append(f"<br><span class='warn'>⚠ {sig['no_reference_mm']:.1f} mm sans plan de référence "
                              "non identifiés comme une fente : effet interpolé, donc SOUS-ESTIMÉ.</span>")
             parts.append(_elements_html(sig))
-            for img in (fig_signal_freq(sig), fig_tdr(sig, tr)):
+            parts.append(_sections_html(sig))
+            for img in (fig_signal_freq(sig), fig_sections(sig), fig_tdr(sig, tr)):
                 if img:
                     parts.append("<img alt='intégrité du signal' src='" + img + "'>")
             parts.append("</div>")

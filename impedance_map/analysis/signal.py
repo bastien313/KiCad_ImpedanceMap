@@ -15,6 +15,17 @@ Grandeurs fournies :
     convertie en impédance vue Z_TDR = Zr (1 + ρ)/(1 − ρ) et en distance (vitesse moyenne) ;
   * coefficient de réflexion crête |ρ| (en %) vu par ce front.
 
+Repères de qualité (`QUALITY_BANDS`, usage RF courant) : return loss ≥ 20 dB excellent (≥ 99 % de la
+puissance transmise), 15–20 dB bon, 10–15 dB acceptable (10 dB = 90 %, critère classique d'adaptation
+d'antenne), < 10 dB mauvais ; équivalents en perte de désadaptation : 0,044 / 0,14 / 0,46 dB.
+
+Contribution de chaque tronçon (`section_contributions`) : le profil est découpé en tronçons homogènes
+(dans la tolérance / trop haut / trop bas / pad / interpolé) et chaque élément localisé (via, coin,
+fente, stub) est un tronçon à part. Pour chacun : perte qu'il produirait SEUL (le reste de la ligne à
+Zref, sans les autres éléments) et gain si on le CORRIGEAIT (tronçon ramené à Zref, élément supprimé).
+Les réflexions interfèrent : les contributions ne s'additionnent pas et un gain peut être négatif (deux
+défauts qui se compensent).
+
 Limites : pertes conducteur/diélectrique non modélisées ; pads, vias, connecteurs et zones de
 discontinuité non modélisés (dans ces zones Z et εeff sont interpolés entre les points calculés) ;
 extrémités supposées adaptées (Zref).
@@ -29,6 +40,23 @@ from typing import Dict, Optional, Tuple
 import numpy as np
 
 C_LIGHT = 299_792_458.0
+
+# (return loss minimal en dB, libellé, couleur) — du meilleur au moins bon ; en dessous du dernier : mauvais
+QUALITY_BANDS = [(20.0, "excellent", "#cfe8d4"), (15.0, "bon", "#e6f2d9"), (10.0, "acceptable", "#fbecc8")]
+QUALITY_BAD = ("mauvais", "#f6d2d0")
+
+
+def rl_to_ml(rl_db: float) -> float:
+    """Perte de désadaptation (dB) correspondant à un return loss (dB)."""
+    g2 = 10 ** (-rl_db / 10)
+    return -10 * math.log10(1 - g2)
+
+
+def quality(rl_db: float) -> str:
+    for lim, name, _ in QUALITY_BANDS:
+        if rl_db >= lim:
+            return name
+    return QUALITY_BAD[0]
 
 
 @dataclass
@@ -237,20 +265,31 @@ def _element_prims(el, prof, tr, kind):
     i = _nearest(prof, el["s"])
     if t == "via":
         zv, er, h = el["z_via"] * k, el["eps"], el["h_used"]
+        asym = kind == "pair" and el.get("strand") in ("P", "N")
+        z_series, z_stub, kL = zv, zv, k
+        if asym:
+            # un seul brin traverse le fût : demi-effet différentiel (l'autre brin reste une ligne de Z
+            # locale) ; la conversion vers le mode commun n'est pas calculée
+            z_series = 0.5 * (zv + float(prof["z"][i]))
+            z_stub, kL = 2.0 * zv, 1.0
         prims = []
         if el["entry_stub"] > 1e-6:
-            prims.append(("S", [(zv, er, el["entry_stub"])]))
+            prims.append(("S", [(z_stub, er, el["entry_stub"])]))
         if h > 0:
-            prims.append(("T", zv, er, h))
+            prims.append(("T", z_series, er, h))
         if el["extra_L"] > 0:
-            prims.append(("L", el["extra_L"] * k))
+            prims.append(("L", el["extra_L"] * kL))
         if el["exit_stub"] > 1e-6:
-            prims.append(("S", [(zv, er, el["exit_stub"])]))
+            prims.append(("S", [(z_stub, er, el["exit_stub"])]))
         stubs = ", ".join(f"{l:.2f} mm (résonance {f:.1f} GHz)" for l, f in zip(el["stub_mm"], el["stub_resonance_GHz"]))
-        info = (f"via {el['layers']} : fût Z = {el['z_via']:.0f} Ω sur {h * 1e3:.2f} mm, "
+        what = el.get("what", "via")
+        side = {"P": " (brin P seul)", "N": " (brin N seul)", "PN": " (P et N)"}.get(el.get("strand"), "")
+        what = what + side + (" — broche terminale" if el.get("terminal") else "")
+        info = (f"{what} {el['layers']} : fût Z = {el['z_via']:.0f} Ω sur {h * 1e3:.2f} mm, "
                 f"L ≈ {el['L_total_nH']:.2f} nH, C ≈ {el['C_barrel_pF']:.3f} pF, antipad Ø {el['D2'] * 1e3:.2f} mm"
                 + (f", stub(s) {stubs}" if stubs else ", sans stub")
-                + ("" if el["return_via"] else ", sans via de retour (inductance de boucle ajoutée)")
+                + ("" if el["return_via"] or h <= 0 else ", sans via de retour (inductance de boucle ajoutée)")
+                + (" ; approximation : demi-effet différentiel, conversion de mode non calculée" if asym else "")
                 + (f" — {el['note']}" if el.get("note") else ""))
         return prims, info
     if t == "corner":
@@ -326,12 +365,16 @@ def build_model(tr, kind: str):
         if not prims:
             continue
         k = int(np.argmin(np.abs(edges[:-1] - el["s"])))
-        inserts.setdefault(k, []).extend(prims)
+        inserts.setdefault(k, []).extend((p, len(described)) for p in prims)
         described.append({"type": el["type"], "s_mm": el["s"] * 1e3, "info": info})
-    prims = []
+    prims, tags = [], []            # tags : ("pt", indice du point) ou ("el", indice de l'élément décrit)
     for i in range(len(prof["s"])):
-        prims.extend(inserts.get(i, []))
+        for p, ek in inserts.get(i, []):
+            prims.append(p)
+            tags.append(("el", ek))
         prims.append(("T", float(prof["z"][i]), float(prof["e"][i]), float(prof["ds"][i])))
+        tags.append(("pt", i))
+    prof["tags"] = tags
     # pads : groupes consécutifs de points issus du modèle localisé
     pads = []
     src = prof["src"]
@@ -371,6 +414,92 @@ def _refill(prof, keep=("ok", "modèle")):
 
 def _db(x):
     return 20 * np.log10(np.maximum(np.abs(x), 1e-12))
+
+
+def _ml_of(s11):
+    return -10 * np.log10(np.maximum(1 - np.abs(s11) ** 2, 1e-12))
+
+
+SECTION_CLASS = {"ok": "dans la tolérance", "high": "trop haut", "low": "trop bas", "pad": "pad (modèle localisé)",
+                 "nan": "interpolé (non calculé)"}
+
+
+def section_contributions(prims, prof, described, zref: float, z_target: float, tol: float, fk: float,
+                          f: Optional[np.ndarray] = None, n_curves: int = 6):
+    """Contribution de chaque tronçon homogène et de chaque élément localisé à la réflexion.
+
+    Retourne (sections triées par perte « seul » décroissante, courbes de perte « seul » des n_curves
+    premiers tronçons sur la grille f). Voir l'en-tête du module pour la définition.
+    """
+    tags = prof.get("tags") or [("pt", i) for i in range(len(prims))]
+    s, z, src = prof["s"], prof["z"], prof["src"]
+    edges = _edges(s)
+    lo, hi = z_target * (1 - tol), z_target * (1 + tol)
+
+    def cls(i):
+        if src[i] == "modèle":
+            return "pad"
+        if src[i] == "nan":
+            return "nan"
+        return "high" if z[i] > hi else ("low" if z[i] < lo else "ok")
+
+    secs = []
+    i = 0
+    while i < len(s):
+        c = cls(i)
+        j = i
+        while j + 1 < len(s) and cls(j + 1) == c:
+            j += 1
+        secs.append({"kind": c, "pts": set(range(i, j + 1)), "els": set(),
+                     "s0_mm": edges[i] * 1e3, "s1_mm": edges[j + 1] * 1e3,
+                     "z_min": float(z[i:j + 1].min()), "z_max": float(z[i:j + 1].max()),
+                     "z_mean": float(np.average(z[i:j + 1], weights=np.maximum(prof["ds"][i:j + 1], 1e-12)))})
+        i = j + 1
+    for k, d in enumerate(described):
+        secs.append({"kind": d["type"], "pts": set(), "els": {k}, "s0_mm": d["s_mm"], "s1_mm": d["s_mm"],
+                     "z_min": float("nan"), "z_max": float("nan"), "z_mean": float("nan"), "info": d["info"]})
+
+    def variant(sec, alone: bool):
+        out = []
+        for p, (tk, idx) in zip(prims, tags):
+            mine = idx in (sec["pts"] if tk == "pt" else sec["els"])
+            keep = mine if alone else not mine
+            if tk == "pt":
+                out.append(p if keep else ("T", zref, p[2], p[3]))
+            elif keep:
+                out.append(p)
+        return out
+
+    fk_arr = np.array([fk])
+    ml_full = float(_ml_of(cascade(prims, zref, fk_arr)[0])[0])
+    for sec in secs:
+        s11a = cascade(variant(sec, True), zref, fk_arr)[0][0]
+        s11f = cascade(variant(sec, False), zref, fk_arr)[0][0]
+        sec["ml_alone_db"] = float(_ml_of(s11a))
+        sec["rl_alone_db"] = float(-_db(s11a))
+        sec["ml_if_fixed_db"] = float(_ml_of(s11f))
+        sec["rl_if_fixed_db"] = float(-_db(s11f))
+        sec["gain_if_fixed_db"] = ml_full - sec["ml_if_fixed_db"]
+        sec["length_mm"] = sec["s1_mm"] - sec["s0_mm"]
+        sec["label"] = SECTION_CLASS.get(sec["kind"], {"via": "via", "corner": "coin", "slot": "fente",
+                                                        "stub": "stub"}.get(sec["kind"], sec["kind"]))
+    secs.sort(key=lambda x: -x["ml_alone_db"])
+    curves = []
+    if f is not None:
+        for sec in secs[:n_curves]:
+            curves.append({"label": _section_name(sec), "kind": sec["kind"],
+                           "ml": _ml_of(cascade(variant(sec, True), zref, f)[0]).tolist()})
+    for sec in secs:
+        sec.pop("pts")
+        sec.pop("els")
+        sec["name"] = _section_name(sec)
+    return secs, curves
+
+
+def _section_name(sec) -> str:
+    if sec["kind"] in SECTION_CLASS:
+        return f"{sec['s0_mm']:.1f}–{sec['s1_mm']:.1f} mm · {sec['label']} · Z {sec['z_mean']:.0f} Ω"
+    return f"{sec['label']} à {sec['s0_mm']:.1f} mm"
 
 
 def analyze_target(tr, spec: SignalSpec, n_plot: int = 301, lumped: bool = True) -> Optional[dict]:
@@ -415,7 +544,22 @@ def analyze_target(tr, spec: SignalSpec, n_plot: int = 301, lumped: bool = True)
         "gamma_static_pct": float(100 * np.max(np.abs((z - zref) / (z + zref)))),
         "curve_f_hz": f.tolist(), "curve_s11_db": _db(s11).tolist(), "curve_ml_db": ml.tolist(),
         "profile_s_mm": (s * 1e3).tolist(), "profile_z": z.tolist(),
+        "quality_at_fkey": quality(float(-_db(gk))),
     }
+    pair = getattr(tr, "pair", None)
+    if kind == "pair" and pair:
+        dt = abs(pair["skew_ps"]) * 1e-12
+        conv = abs(math.sin(math.pi * fk * dt))
+        out["skew_ps"] = pair["skew_ps"]
+        out["mode_conversion_db_at_fkey"] = float(20 * math.log10(max(conv, 1e-12)))
+        ui = 1.0 / spec.bitrate if spec.kind == "digital" and spec.bitrate > 0 else None
+        out["skew_pct_ui"] = float(100 * dt / ui) if ui else None
+        out["skew_pct_rise"] = float(100 * dt / spec.rise) if spec.kind == "digital" and spec.rise > 0 else None
+    if lumped:
+        secs, curves = section_contributions(prims, prof, described if lumped else [], zref,
+                                             tr.target["z_target"], tr.target.get("tol", 0.1), fk, f)
+        out["sections"] = secs
+        out["section_curves"] = curves
     if spec.kind == "digital" and spec.rise > 0:
         x, zt, rho = _tdr_prims(prims, zref, spec.rise, float(np.sum(ds)))
         step = max(1, len(x) // 400)
@@ -423,6 +567,8 @@ def analyze_target(tr, spec: SignalSpec, n_plot: int = 301, lumped: bool = True)
             "tdr_x_mm": (x[::step] * 1e3).tolist(), "tdr_z": zt[::step].tolist(),
             "tdr_z_min": float(zt.min()), "tdr_z_max": float(zt.max()),
             "tdr_peak_reflection_pct": float(100 * np.max(np.abs(rho))),
+            # aller-retour plus court que le front : la TDR ne localise pas, elle intègre (ligne « courte »)
+            "tdr_round_trip_ps": float(2e12 * np.sum(ds * np.sqrt(prof["e"])) / C_LIGHT),
         })
         if lumped and (described or pads):
             ref = analyze_target(tr, spec, n_plot, lumped=False)

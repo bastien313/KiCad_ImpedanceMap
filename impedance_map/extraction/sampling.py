@@ -6,8 +6,16 @@
     points aux bords des zones de coin (raffinement aux changements de géométrie) ;
   * zones de discontinuité marquées dès l'échantillonnage :
       - coin : changement de direction > `corner_angle` entre deux éléments, sur ±corner_zone ;
-      - arc serré : rayon < arc_min_radius ;
-      - changement de couche (via) : ±corner_zone autour du point de transition.
+      - arc serré : rayon < arc_min_radius_factor × largeur de piste ;
+      - changement de couche (via) : ±corner_zone autour du point de transition ;
+      - extrémités libres : ±w/2 (embout arrondi) ;
+  * les changements de largeur de piste ne marquent rien ici : ils ajoutent seulement des points
+    aux bords de ±w_max/2. C'est la largeur du cuivre FINAL mesurée dans les coupes (pistes, pads,
+    zones fusionnés) qui décide de l'uniformité (Engine._non_uniform) ;
+  * zones de cuivre du même net servant de piste (`zone_bridges`) : une extrémité libre de piste
+    dans une zone allongée est prolongée le long de la zone ; deux extrémités libres dans la même
+    zone sont reliées. Ces tronçons synthétiques (`Seg.synthetic`) sont échantillonnés comme des
+    pistes, la largeur réelle étant mesurée dans chaque coupe.
 """
 
 from __future__ import annotations
@@ -155,13 +163,99 @@ def _dot(a: Pt, b: Pt) -> float:
     return a[0] * b[0] + a[1] * b[1]
 
 
+def _free_ends(segs: Sequence[Seg], tol: float = 1e-6) -> List[Tuple[Pt, Seg]]:
+    """Extrémités libres (degré 1) du réseau de segments, avec le segment qui y arrive."""
+    deg: Dict[tuple, List[Tuple[Pt, Seg]]] = {}
+    for s in segs:
+        deg.setdefault(_key(s.start, tol), []).append((s.start, s))
+        deg.setdefault(_key(s.end, tol), []).append((s.end, s))
+    return [v[0] for v in deg.values() if len(v) == 1]
+
+
+def _arrival_dir(seg: Seg, p: Pt) -> Pt:
+    """Direction unitaire de parcours de `seg` quand on arrive à son extrémité p."""
+    pts = seg.points()
+    if _dist(pts[0], p) < _dist(pts[-1], p):
+        pts = pts[::-1]
+    a, b = pts[-2], pts[-1]
+    d = _dist(a, b) or 1.0
+    return ((b[0] - a[0]) / d, (b[1] - a[1]) / d)
+
+
+def zone_bridges(segs: Sequence[Seg], zone_fill_of_layer, min_aspect: float = 1.5,
+                 max_entry_angle_deg: float = 30.0) -> List[Seg]:
+    """Tronçons synthétiques qui font passer le tracé par les zones de cuivre du même net.
+
+    zone_fill_of_layer(layer) -> géométrie shapely des remplissages de zones du net sur la couche
+    (ou None). Pour chaque polygone rempli :
+      * deux extrémités libres de piste dedans -> segment droit entre elles (s'il reste dans la zone) ;
+      * une seule extrémité libre, zone allongée (rectangle minimal ≥ `min_aspect`) et piste entrant
+        à moins de `max_entry_angle_deg` de l'axe -> prolongement le long de l'axe jusqu'au bord de
+        la zone (largeur nominale = petit côté du rectangle ; la coupe mesure la largeur réelle).
+    Les autres cas (zone compacte, plus de deux extrémités, entrée de biais) sont ignorés : la zone
+    reste du cuivre du net vu dans les coupes, sans devenir un tronçon du tracé.
+    """
+    from shapely.geometry import LineString, Point
+
+    if not segs:
+        return []
+    net = segs[0].net
+    ends = _free_ends(segs)
+    out: List[Seg] = []
+    for layer in sorted({s.layer for s in segs}):
+        fill = zone_fill_of_layer(layer)
+        if fill is None or fill.is_empty:
+            continue
+        polys = list(fill.geoms) if hasattr(fill, "geoms") else [fill]
+        for zi, poly in enumerate(polys):
+            if poly.geom_type != "Polygon" or poly.area <= 0:
+                continue
+            inside = poly.buffer(1e-6)
+            here = [(p, s) for p, s in ends if s.layer == layer and inside.contains(Point(p))]
+            rect = list(poly.minimum_rotated_rectangle.exterior.coords)[:4]
+            e1 = (rect[1][0] - rect[0][0], rect[1][1] - rect[0][1])
+            e2 = (rect[2][0] - rect[1][0], rect[2][1] - rect[1][1])
+            l1, l2 = math.hypot(*e1), math.hypot(*e2)
+            w_zone = min(l1, l2)
+            uid = f"zone:{net}:{layer}:{zi}"
+            if len(here) == 2:
+                (p, _), (q, _) = here
+                line = LineString([p, q])
+                if line.length > 0 and inside.contains(line):
+                    out.append(Seg(uid, net, layer, w_zone, p, q, synthetic=True))
+                continue
+            if len(here) != 1 or w_zone <= 0 or max(l1, l2) < min_aspect * w_zone:
+                continue
+            p, s = here[0]
+            ax = e1 if l1 >= l2 else e2
+            la = math.hypot(*ax)
+            ax = (ax[0] / la, ax[1] / la)
+            d_in = _arrival_dir(s, p)
+            c = _dot(ax, d_in)
+            if abs(c) < math.cos(math.radians(max_entry_angle_deg)):
+                continue
+            if c < 0:
+                ax = (-ax[0], -ax[1])
+            far = (p[0] + ax[0] * (la + w_zone), p[1] + ax[1] * (la + w_zone))
+            inter = LineString([p, far]).intersection(inside)
+            pieces = list(inter.geoms) if hasattr(inter, "geoms") else [inter]
+            piece = next((g for g in pieces if g.geom_type == "LineString" and g.distance(Point(p)) < 2e-6), None)
+            if piece is None:
+                continue
+            q = max(piece.coords, key=lambda xy: _dist(xy, p))
+            q = (float(q[0]), float(q[1]))
+            if _dist(p, q) > 0.5 * w_zone:
+                out.append(Seg(uid, net, layer, w_zone, p, q, synthetic=True))
+    return out
+
+
 @dataclass
 class SamplingOptions:
     step: float = 0.5e-3
     corner_angle_deg: float = 5.0
     corner_zone: Optional[float] = None      # défaut : max(w, 1,5·h_ref) fourni par l'appelant
-    arc_min_radius: Optional[float] = None   # défaut fourni par l'appelant
-    end_margin: Optional[float] = None       # zone exclue aux extrémités libres (pads) ; défaut = w
+    arc_min_radius_factor: float = 2.0       # arc serré si R < facteur × largeur de la piste
+    end_margin: Optional[float] = None       # zone exclue aux extrémités libres ; défaut = w/2 (embout arrondi)
 
 
 def sample_path(path: Path, opt: SamplingOptions, h_ref_of_layer, via_radius_at=None) -> List[Sample]:
@@ -196,17 +290,20 @@ def sample_path(path: Path, opt: SamplingOptions, h_ref_of_layer, via_radius_at=
         if ang > opt.corner_angle_deg:
             events.append((sv, f"coin {ang:.0f}°", zone))
         if abs(a.seg.width - b.seg.width) > 1e-7:
-            events.append((sv, "changement de largeur", max(w, 1e-4)))
+            # points de raffinement seulement (non marquant) : l'embout de la piste large a un rayon w_max/2
+            events.append((sv, "", max(0.5 * w, 5e-5)))
     # extrémités libres : arrivée sur pad/via
     w0, w1 = elems[0].seg.width, elems[-1].seg.width
-    events.append((0.0, "extrémité (pad/via)", opt.end_margin or w0))
-    events.append((L, "extrémité (pad/via)", opt.end_margin or w1))
+    events.append((0.0, "extrémité (pad/via)", opt.end_margin or w0 / 2))
+    events.append((L, "extrémité (pad/via)", opt.end_margin or w1 / 2))
 
     # --- abscisses d'échantillonnage : pas régulier + bords des zones
     n = max(1, int(round(L / opt.step)))
     ss = list(np.linspace(0.0, L, n + 1)[1:-1]) if n > 1 else [L / 2]
-    for sv, _, z in events:
-        for sb in (sv - z * 1.001, sv + z * 1.001):
+    for sv, why, z in events:
+        # bords de zone ; aux extrémités, aussi un point dans la zone (pad terminal -> modèle localisé)
+        extra = (sv - z / 2, sv + z / 2) if why.startswith("extrémité") else ()
+        for sb in (sv - z * 1.001, sv + z * 1.001) + extra:
             if 0 < sb < L:
                 ss.append(sb)
     ss = sorted(set(round(x, 9) for x in ss))
@@ -225,12 +322,11 @@ def sample_path(path: Path, opt: SamplingOptions, h_ref_of_layer, via_radius_at=
                      tangent=(float(d[0] / dn), float(d[1] / dn)), layer=seg.layer, width=seg.width,
                      seg_uid=seg.uid, radius=seg.radius)
         for sv, why, z in events:
-            if abs(sq - sv) < z:
+            if why and abs(sq - sv) < z:
                 smp.status, smp.reason = "discontinuity", why
                 break
         if smp.status == "ok" and seg.is_arc:
-            rmin = opt.arc_min_radius if opt.arc_min_radius is not None else 0.0
-            if seg.radius < rmin:
+            if seg.radius < opt.arc_min_radius_factor * seg.width:
                 smp.status, smp.reason = "discontinuity", f"arc R={seg.radius * 1e3:.2f} mm"
         out.append(smp)
     return out

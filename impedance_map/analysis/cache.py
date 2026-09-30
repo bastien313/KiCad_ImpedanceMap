@@ -14,7 +14,7 @@ from typing import Dict, Optional
 
 from ..solver.lines import LineResult
 
-CACHE_VERSION = 3   # à incrémenter si le solveur ou la construction des coupes change
+CACHE_VERSION = 4   # à incrémenter si le solveur ou la construction des coupes change
 
 
 def default_cache_dir() -> pathlib.Path:

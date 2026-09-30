@@ -204,6 +204,7 @@ def read_kicad_pcb(path) -> BoardModel:
             fx, fy = float(at[1]) * MM, float(at[2]) * MM
             frot = float(at[3]) if len(at) > 3 else 0.0
             ref = ""
+            side = "B" if str(sx.value(node, "layer", default="")).startswith("B.") else "F"
             for p in sx.children(node, "property"):
                 if len(p) > 2 and p[1] == "Reference":
                     ref = p[2]
@@ -231,7 +232,7 @@ def read_kicad_pcb(path) -> BoardModel:
                     drill = float(nums[0]) * MM if nums else 0.0
                 bm.pads.append(PadObj(uid=sx.value(pad, "uuid", default="") or "", net=_net_of(pad, net_table),
                                       pos=pos, shapes={l: shape for l in layers}, drill=drill,
-                                      ref=f"{ref}.{pad[1]}"))
+                                      ref=f"{ref}.{pad[1]}", side=side))
         elif h == "zone":
             if sx.child(node, "keepout") is not None:
                 continue

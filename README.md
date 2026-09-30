@@ -27,9 +27,12 @@ Fonctionne sous **Windows** et **Linux** (et macOS, non testé) avec KiCad 10 et
 | **Dialogue du plugin** | |
 | ![dialogue](docs/img/ui_dialog.png) | |
 
-La carte du board du rapport est **interactive** (SVG intégré) : échelle en **Ω centrée sur la cible**
-(une cible à la fois, ex. « cible 90 Ω »), en **Ω libre** (min/max) ou en **écart %**, infobulle au
-survol, zoom à la molette.
+La carte du board du rapport est **interactive** (SVG intégré) et montre **ce que le calcul a vu** : le
+cuivre final de chaque couche (zones remplies, pads, vias, masse coplanaire ; une case par couche), et
+pour chaque point calculé une bande de la **largeur de cuivre mesurée dans sa coupe**, colorée selon Z.
+Au survol, la **ligne de coupe** (fenêtre du solveur 2D) est tracée. Les points non calculés consécutifs
+forment un seul tronçon hachuré avec sa cause. Échelle en **Ω centrée sur la cible** (une cible à la
+fois, ex. « cible 90 Ω »), en **Ω libre** (min/max) ou en **écart %**, zoom à la molette.
 
 Rapport complet d'exemple : [examples/demo_report.html](examples/demo_report.html).
 
@@ -63,8 +66,10 @@ Rapport complet d'exemple : [examples/demo_report.html](examples/demo_report.htm
   contours), masque de soudure conforme, trapèze de gravure optionnel.
 * **Physique** : matrice de capacités C et C0, L = μ0ε0·C0⁻¹, Z0 et εeff (simple) ; analyse modale
   (Zodd, Zeven, Zdiff, Zcomm, Z0 de chaque brin, coefficient de couplage) pour les paires.
-* **Discontinuités** (coins, arcs serrés, pads, vias, changements de couche, virages de paire) marquées
-  au lieu d'afficher une valeur 2D sans sens ; **pertes de référence** (fente, bord de plan) signalées.
+* **Discontinuités** (coins, arcs serrés, pads, vias du net, changements de couche, virages de paire)
+  marquées au lieu d'afficher une valeur 2D sans sens ; **pertes de référence** (fente, bord de plan)
+  signalées. Les arcs de routage (R ≥ 2 w), les tronçons rétrécis aux pads, les clôtures de vias GND
+  et les **zones de cuivre du net qui prolongent une piste** sont calculés.
 * **Cache** des coupes identiques (géométrie quantifiée + hachage, mémoire et disque) et **calcul
   parallèle** multiprocessus, avec barre de progression et annulation.
 * **Overlay** dans l'éditeur : tronçons sur 3 couches User (dans la tolérance / trop haut / trop bas),
@@ -75,6 +80,17 @@ Rapport complet d'exemple : [examples/demo_report.html](examples/demo_report.htm
 * **Intégrité du signal** : à partir du profil Z(s) réel, |S11| (return loss) et **perte de désadaptation**
   en fréquence, **TDR simulée** (impédance vue par un front de montée réel) et **réflexion crête** ;
   préréglages USB 2.0 HS, USB 3.x, PCIe, HDMI, MIPI, Ethernet, numérique perso ou RF (fréquence).
+  Les courbes portent des **zones de qualité** (return loss ≥ 20 dB excellent, 15–20 bon, 10–15 acceptable,
+  < 10 mauvais ; soit ≤ 0,044 / 0,14 / 0,46 dB de perte de désadaptation).
+* **Paires différentielles** : Zdiff le long du tracé, **symétrie P / N** (écart de longueur, skew en ps,
+  écart cumulé le long du tracé pour voir quels virages le créent, conversion de mode due au skew), brins P et
+  N tracés à leur position réelle sur la carte.
+* **Broches traversantes** (connecteurs, THT) modélisées comme des fûts de via : changement de couche par une
+  broche, stub d'une broche traversée, broche terminale (fût en série vers le composant ou stub selon la face).
+* **Contribution de chaque tronçon** : le tracé est découpé en tronçons homogènes (dans la tolérance, trop
+  haut, trop bas, pad, interpolé) plus chaque via, coin, fente ou stub ; pour chacun, perte qu'il produirait
+  **seul** et **gain si on le corrigeait** (ramené à Zref), en barres le long du tracé, en courbes de
+  fréquence et en tableau. Les réflexions interfèrent : les contributions ne s'additionnent pas.
 * **Discontinuités modélisées** dans ce calcul (modèles localisés) : **pads** sur le trajet (ΔC), **vias**
   (fût coaxial, antipad mesuré, inductance de boucle sans via de retour), **stubs de via**, **stubs de
   piste** (branches en T, points de test), **coins** et **fentes** du plan (L = 0,2·D·ln(D/W) nH). Le rapport
@@ -203,7 +219,7 @@ composants, virages de paire (interpolés). Exemple : `examples/demo_discontinui
 | Pad CMS 1,0 × 1,2 mm sur une microstrip 50 Ω | 0,0 % | 1,7 % (ΔC ≈ 243 fF) |
 | Branche en T de 8 mm (point de test) | 0,0 % | 5,8 % (résonance ≈ 5 GHz) |
 | Fente 8 × 1 mm dans le plan | 0,0 % | 6,7 % (L ≈ 3,3 nH) |
-| Même stub, USB 3.x 10 Gb/s (Nyquist 5 GHz) | 0,0 % | **34,9 %**, return loss 0,5 dB |
+| Même stub, USB 3.x 10 Gb/s (Nyquist 5 GHz) | 0,0 % | **35,0 %**, return loss 0,5 dB |
 
 ### Calcul inverse
 Bouton **Calcul inverse…** : couche, Z cible, type (simple ; paire à gap fixé → largeur ; paire à
@@ -292,12 +308,19 @@ Détail complet : [docs/PHYSICS.md](docs/PHYSICS.md).
 * **Hors périmètre** : pertes (diélectriques, conducteur), dispersion en fréquence, rugosité,
   effet de peau ; les Z sont des valeurs quasi-statiques. L'intégrité du signal est calculée sur une
   ligne sans pertes (seul l'effet de l'impédance est évalué).
-* Modèle **2D** : coins, arcs de faible rayon (< demi-fenêtre), pads, vias, extrémités, virages de
-  paire et changements de couche sont exclus (marqués « discontinuité ») ; l'effet d'une fente est
-  vu seulement quand la coupe est dans la fente.
+* Modèle **2D** : coins, arcs serrés (R < 2 w), pads, vias du net, extrémités, virages de paire et
+  changements de couche sont exclus (marqués « discontinuité ») ; l'effet d'une fente est vu
+  seulement quand la coupe est dans la fente.
+* Nets simples : la largeur est **mesurée sur le cuivre final** (pistes + pads + zones du net) ; les pistes
+  ne servent qu'à guider le trajet. Un point n'est calculé que si ce cuivre est localement uniforme.
+* Zones du net servant de piste : prises en compte si une extrémité de piste entre dans une zone
+  allongée (prolongement le long de son grand axe) ou si deux extrémités y aboutissent (liaison
+  droite) ; une zone en L, compacte ou atteinte de biais reste du simple cuivre du net dans les coupes.
 * Pistes voisines **obliques** : coupées selon la ligne de coupe (largeur apparente = w/cos θ).
-* Vias et pads traversants proches de la piste (< max(1,5 w, h)) → discontinuité ; plus loin, seuls
-  leurs pastilles de cuivre sont prises en compte (pas le fût).
+* Vias et pads traversants **du net** proches de la piste (< max(1,5 w, h)) → discontinuité. Ceux des
+  **autres nets** (clôture de vias, couture) : pastilles prises en compte, fût ignoré (comme les
+  calculateurs CPWG usuels) ; un avertissement le signale. Borne mesurée sur une CPWG 50 Ω réelle
+  (fûts à 0,5 mm du bord) : un mur continu à la place de la clôture abaisserait Z de 5,9 %.
 * Pads « custom » lus depuis un **fichier** : approximés (ancre + polygones) ; en direct, la forme
   exacte est demandée à KiCad.
 * Stackup du board : sous-couches diélectriques multiples OK en direct ; lues comme une seule couche

@@ -67,6 +67,7 @@ class Seg:
     start: Pt
     end: Pt
     mid: Optional[Pt] = None          # arc si non None
+    synthetic: bool = False           # tronçon déduit d'une zone du net (sampling.zone_bridges)
 
     @property
     def is_arc(self) -> bool:
@@ -113,7 +114,8 @@ class PadObj:
     pos: Pt
     shapes: Dict[str, object]         # couche -> géométrie shapely
     drill: float = 0.0
-    ref: str = ""
+    ref: str = ""                     # « J8.A6 » (référence du composant . numéro du pad)
+    side: str = ""                    # côté du composant : "F", "B" ou "" (inconnu)
 
     @property
     def is_through(self) -> bool:
@@ -215,6 +217,7 @@ class BoardModel:
     warnings: List[str] = field(default_factory=list)
     outline: Optional[object] = None           # contour de carte (shapely), optionnel
     _layer_cache: Dict[str, LayerCopper] = field(default_factory=dict, repr=False)
+    _zone_cache: Dict[str, object] = field(default_factory=dict, repr=False)
 
     # ------------------------------------------------------------------ requêtes
     @property
@@ -226,6 +229,15 @@ class BoardModel:
 
     def segs_of(self, net: str) -> List[Seg]:
         return [s for s in self.segs if s.net == net]
+
+    def net_zone_fill(self, net: str, layer: str):
+        """Union des remplissages des zones du net sur la couche (None si aucune)."""
+        key = f"{net}\x00{layer}"
+        if key not in self._zone_cache:
+            g = [z.filled[layer] for z in self.zones
+                 if z.net == net and layer in z.filled and not z.filled[layer].is_empty]
+            self._zone_cache[key] = shapely.union_all(g) if g else None
+        return self._zone_cache[key]
 
     def unfilled_zones(self) -> List[ZoneObj]:
         return [z for z in self.zones if not z.is_filled]
@@ -271,6 +283,14 @@ class BoardModel:
             if abs(u) <= half and dist <= r + margin:
                 out.append((u, r, p.net, p))
         return out
+
+    def through_pad_at(self, pt: Pt, net: str, tol: float = 5e-6) -> Optional["PadObj"]:
+        """Pad traversant du net dont le perçage contient le point (broche de connecteur, pad THT)."""
+        for p in self.pads:
+            if p.net == net and p.is_through and \
+                    math.hypot(p.pos[0] - pt[0], p.pos[1] - pt[1]) <= p.drill / 2 + tol:
+                return p
+        return None
 
     def pads_at(self, pt: Pt, layer: str, net: Optional[str] = None, tol: float = 0.0):
         q = Point(pt)

@@ -80,3 +80,25 @@ def test_rf_mode_and_interpolation():
     assert out["return_loss_db_at_fkey"] > 60          # ligne adaptée (zone interpolée à 50 Ω)
     assert 8 < out["interpolated_pct"] < 10          # 4,5 mm interpolés sur 50 mm
     assert out["no_reference_mm"] == pytest.approx(0.5, abs=0.01)   # 1 point sans référence (22,5 mm) = 0,5 mm
+
+
+def test_quality_bands_and_ml_equivalents():
+    from impedance_map.analysis.signal import quality, rl_to_ml
+    assert [quality(x) for x in (25, 17, 12, 6)] == ["excellent", "bon", "acceptable", "mauvais"]
+    assert rl_to_ml(20) == pytest.approx(0.0436, abs=1e-4)
+    assert rl_to_ml(10) == pytest.approx(0.458, abs=1e-3)
+
+
+def test_section_contributions_single_defect():
+    """Une seule section désadaptée (70 Ω sur 5 mm dans une ligne 50 Ω) : seule, elle produit toute la
+    réflexion, et la corriger annule la perte ; les tronçons adaptés ne contribuent pas."""
+    s = np.arange(1, 100) * 0.5e-3
+    tr = _TR([_S(x, 70.0 if 20e-3 < x < 25e-3 else 50.0, 3.0) for x in s], "single", 50.0)
+    out = analyze_target(tr, SignalSpec("RF", "rf", freq=2.4e9))
+    secs = out["sections"]
+    assert secs[0]["kind"] == "high" and secs[0]["z_mean"] == pytest.approx(70.0)
+    assert secs[0]["ml_alone_db"] == pytest.approx(out["mismatch_loss_db_at_fkey"], rel=1e-9)
+    assert secs[0]["gain_if_fixed_db"] == pytest.approx(out["mismatch_loss_db_at_fkey"], rel=1e-6)
+    assert secs[0]["rl_if_fixed_db"] > 100
+    assert all(x["ml_alone_db"] < 1e-9 for x in secs[1:])
+    assert out["section_curves"] and len(out["section_curves"][0]["ml"]) == len(out["curve_f_hz"])

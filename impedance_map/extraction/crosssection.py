@@ -11,8 +11,13 @@ Règles physiques (documentées dans docs/PHYSICS.md) :
   * cuivre du même net que la cible mais distinct de la piste : s'il est à moins de
     `self_zone` de la piste -> discontinuité (coin, méandre, pad, via du même net) ;
     plus loin -> traité comme conducteur au repos (0 V) ;
-  * vias / pads traversants coupés par la ligne près de la cible -> discontinuité ;
-    plus loin, seuls leurs pads (déjà dans le cuivre des couches) sont pris en compte ;
+  * vias / pads traversants DU MÊME NET coupés par la ligne près de la cible -> discontinuité ;
+    ceux des autres nets (clôture de vias d'une ligne coplanaire, vias de couture) ne le sont pas :
+    leurs pastilles sont dans le cuivre des couches, leur fût est ignoré (comme dans les
+    calculateurs CPWG usuels ; un mur continu à sa place abaisserait Z de quelques %) et compté
+    dans `CutInfo.ignored_vias` pour avertir l'utilisateur ;
+  * `free_width` (piste dans une zone du même net, tronçon déduit d'une zone) : la largeur du
+    signal est celle du cuivre coupé, pas celle de la piste nominale ;
   * référence : un conducteur GROUND sur une autre couche couvrant la piste ±w, ou à
     défaut des masses coplanaires des deux côtés à moins de 3w -> sinon « perte de
     référence » (valeur calculée mais signalée) ;
@@ -43,6 +48,7 @@ class CutOptions:
     truncate_shielded: bool = True
     merge_same_net: bool = False       # modèle localisé (pads) : le cuivre du même net proche de la
     #                                    piste est au potentiel du signal au lieu d'être à 0 V
+    free_width: bool = False           # largeur du signal = cuivre coupé (zone du net), sans test
 
 
 @dataclass
@@ -53,6 +59,7 @@ class CutInfo:
     signal_widths: List[float] = field(default_factory=list)
     gap: float = float("nan")
     warnings: List[str] = field(default_factory=list)
+    ignored_vias: int = 0              # fûts de vias d'autres nets proches de la piste, ignorés
 
 
 def _covers(iv: CutInterval, a: float, b: float, tol: float = 1e-9) -> bool:
@@ -94,10 +101,14 @@ def build_cut(bm: BoardModel, stackup: Stackup, center: Pt, direction: Pt, half:
         iv = min(cands, key=lambda c: abs(c.center - u_exp))
         sig_iv.append(iv)
         info.signal_widths.append(iv.width)
+        if opt.free_width:
+            continue
         if iv.width > w * (1 + opt.width_tol) + 2e-6:
             info.status, info.reason = "discontinuity", "pad / jonction (cuivre plus large que la piste)"
         elif iv.width < w * (1 - opt.width_tol) - 2e-6:
             info.status, info.reason = "discontinuity", "fin de piste"
+    if opt.free_width:
+        w_max = max([w_max] + info.signal_widths)
     if len(sig_iv) == 2:
         if sig_iv[0] is sig_iv[1] or sig_iv[0].part == sig_iv[1].part:
             info.status, info.reason = "error", "les deux brins se confondent dans la coupe"
@@ -124,10 +135,12 @@ def build_cut(bm: BoardModel, stackup: Stackup, center: Pt, direction: Pt, half:
     if info.status == "ok":
         for u, r, net, obj in bm.vias_near_line(center, direction, half):
             dist = max(s_lo - (u + r), (u - r) - s_hi, 0.0)
-            if dist < via_zone:
-                info.status = "discontinuity"
-                info.reason = "via" + (" du même net" if net in target_nets else f" ({net or 'sans net'})")
+            if dist >= via_zone:
+                continue
+            if net in target_nets:
+                info.status, info.reason = "discontinuity", "via du même net"
                 break
+            info.ignored_vias += 1
 
     # ------------------------------------------------ conducteurs
     conds: List[Conductor] = []

@@ -80,12 +80,30 @@ def _plane_parts(bm, layer, exclude_nets):
     return [(p, n) for p, n in zip(lc.parts, lc.nets) if n and n not in exclude_nets]
 
 
-def via_element(bm, stackup, net, point, layer_a, layer_b, s_v, return_distance) -> Optional[dict]:
-    via = None
+class _Barrel:
+    """Fût métallisé vu par le modèle : via, ou pad traversant (broche de connecteur, composant THT)."""
+
+    def __init__(self, pos, diameter, drill, layers, label, pad=None):
+        self.pos, self.diameter, self.drill, self.layers, self.label, self.pad = pos, diameter, drill, layers, label, pad
+
+
+def find_barrel(bm, stackup, net, point) -> Optional[_Barrel]:
     for v in bm.vias:
         if v.net == net and abs(v.pos[0] - point[0]) < 5e-6 and abs(v.pos[1] - point[1]) < 5e-6:
-            via = v
-            break
+            return _Barrel(v.pos, v.diameter, v.drill, v.layers, "via")
+    p = bm.through_pad_at(point, net)
+    if p is None:
+        return None
+    ext = [g.bounds for g in p.shapes.values() if g is not None and not g.is_empty]
+    dia = max((min(b[2] - b[0], b[3] - b[1]) for b in ext), default=2 * p.drill)
+    return _Barrel(p.pos, max(dia, p.drill * 1.1), p.drill, list(stackup.copper_names),
+                   f"broche {p.ref}" if p.ref else "pad traversant", pad=p)
+
+
+def via_element(bm, stackup, net, point, layer_a, layer_b, s_v, return_distance, barrel=None) -> Optional[dict]:
+    """Modèle du fût entre layer_a et layer_b (via ou broche traversante) ; layer_a == layer_b : fût
+    traversé sur place (seulement des stubs)."""
+    via = barrel or find_barrel(bm, stackup, net, point)
     lay = stackup.vertical_layout()["copper"]
     yc = {L: 0.5 * (a + b) for L, (a, b) in lay.items()}
     if via is None or layer_a not in yc or layer_b not in yc:
@@ -125,7 +143,7 @@ def via_element(bm, stackup, net, point, layer_a, layer_b, s_v, return_distance)
     entry_stub, exit_stub = (stub_top, stub_bot) if going_down else (stub_bot, stub_top)
     stubs = [l for l in (stub_top, stub_bot) if l > 1e-6]
     return {
-        "type": "via", "s": s_v, "pos": list(via.pos), "layers": f"{layer_a}→{layer_b}",
+        "type": "via", "s": s_v, "pos": list(via.pos), "layers": f"{layer_a}→{layer_b}", "what": via.label,
         "z_via": z_via, "eps": er, "h_used": h_used, "entry_stub": entry_stub, "exit_stub": exit_stub,
         "extra_L": extra_L, "drill": d, "D2": D2, "return_via": ret, "note": note,
         "L_total_nH": (L_coax + extra_L) * 1e9, "C_barrel_pF": h_used * math.sqrt(er) / C_LIGHT / z_via * 1e12,
@@ -197,6 +215,52 @@ def slot_element(bm, stackup, nets, samples, layer) -> Optional[dict]:
     return None
 
 
+def _dedupe_barrels(elems: List[dict]) -> List[dict]:
+    """Un seul élément par fût : plusieurs segments peuvent se rejoindre au centre d'une même broche.
+    On garde la transition qui traverse le plus de hauteur (changement de couche > fût traversé sur place),
+    puis la broche terminale."""
+    best: dict = {}
+    order = []
+    for e in elems:
+        if e["type"] != "via":
+            order.append(e)
+            continue
+        key = (round(e["pos"][0] * 1e5), round(e["pos"][1] * 1e5))
+        cur = best.get(key)
+        if cur is None:
+            best[key] = e
+            order.append(e)
+        elif (e["h_used"], bool(e.get("terminal"))) > (cur["h_used"], bool(cur.get("terminal"))):
+            order[order.index(cur)] = e
+            best[key] = e
+    return order
+
+
+def pin_elements(bm, stackup, net, main, return_distance) -> List[dict]:
+    """Broches traversantes aux extrémités du chemin principal (connecteur, composant THT).
+
+    Composant sur la face opposée à la piste : le fût traverse la carte EN SÉRIE jusqu'au composant.
+    Même face (ou face inconnue) : le fût est un stub jusqu'à l'autre face. La partie de la broche hors
+    de la carte et le contact du connecteur ne sont pas modélisés.
+    """
+    out = []
+    names = stackup.copper_names
+    ends = [(main.elems[0].start, main.elems[0].seg.layer, 0.0),
+            (main.elems[-1].end, main.elems[-1].seg.layer, main.length)]
+    for pt, layer, s_v in ends:
+        b = find_barrel(bm, stackup, net, pt)
+        if b is None or b.pad is None:
+            continue
+        side = {"F": names[0], "B": names[-1]}.get(b.pad.side, layer)
+        el = via_element(bm, stackup, net, pt, layer, side, s_v, return_distance, barrel=b)
+        if el:
+            el["terminal"] = True
+            if s_v == 0.0:            # entrée : le fût est parcouru du composant vers la piste
+                el["entry_stub"], el["exit_stub"] = el["exit_stub"], el["entry_stub"]
+            out.append(el)
+    return out
+
+
 def stub_elements(paths, main) -> Tuple[List[dict], List[str]]:
     out, notes = [], []
     if main is None:
@@ -231,6 +295,7 @@ def build_elements(bm, stackup, target, paths, samples, return_distance: float,
     elems: List[dict] = []
     notes: List[str] = []
     acc = 0.0
+    elems += pin_elements(bm, stackup, net, main, return_distance)
     for k, e in enumerate(main.elems):
         if k > 0:
             a = main.elems[k - 1]
@@ -240,6 +305,11 @@ def build_elements(bm, stackup, target, paths, samples, return_distance: float,
                     elems.append(v)
                 else:
                     notes.append(f"changement de couche en s = {acc * 1e3:.1f} mm sans via trouvé (non modélisé)")
+            elif bm.through_pad_at(a.end, net) is not None:
+                # pad traversant sur le trajet sans changement de couche : le fût est un stub
+                v = via_element(bm, stackup, net, a.end, a.seg.layer, a.seg.layer, acc, return_distance)
+                if v:
+                    elems.append(v)
             else:
                 d1 = _dir(a.points()[-2], a.points()[-1])
                 d2 = _dir(e.points()[0], e.points()[1])
@@ -264,8 +334,64 @@ def build_elements(bm, stackup, target, paths, samples, return_distance: float,
             else:
                 notes.append(f"perte de référence en s = {group[0].s * 1e3:.1f} mm : plan fendu non identifié")
             group = []
+    elems = _dedupe_barrels(elems)
     st, n2 = stub_elements(paths, main)
     elems += st
     notes += n2
+    elems.sort(key=lambda d: d["s"])
+    return mid, elems, notes
+
+
+def _barrel_elements(bm, stackup, net, main, return_distance) -> List[dict]:
+    """Vias, broches traversées et broches terminales d'un chemin (sans coins, fentes ni stubs)."""
+    out = pin_elements(bm, stackup, net, main, return_distance)
+    acc = 0.0
+    for k, e in enumerate(main.elems):
+        if k > 0:
+            a = main.elems[k - 1]
+            if a.seg.layer != e.seg.layer or bm.through_pad_at(a.end, net) is not None:
+                v = via_element(bm, stackup, net, a.end, a.seg.layer, e.seg.layer if a.seg.layer != e.seg.layer
+                                else a.seg.layer, acc, return_distance)
+                if v:
+                    out.append(v)
+        acc += e.seg.length
+    return _dedupe_barrels(out)
+
+
+def pair_elements(bm, stackup, target, p_paths, n_paths, samples, return_distance: float,
+                  corner_angle_deg: float = 5.0, match_distance: float = 3e-3):
+    """Éléments d'une paire : ceux du brin P (build_elements) + vias / broches du brin N.
+
+    Un fût du brin P et un fût du brin N à moins de `match_distance` avec la même transition de couches
+    forment un élément SYMÉTRIQUE (modèle différentiel habituel). Sinon l'élément est ASYMÉTRIQUE
+    (`strand` = "P" ou "N") : un seul brin le voit, ce qui convertit une partie du mode différentiel en
+    mode commun ; signal.py l'approxime en demi-effet différentiel.
+    """
+    mid, elems, notes = build_elements(bm, stackup, target, p_paths, samples, return_distance, corner_angle_deg)
+    if mid is None:
+        return mid, elems, notes
+    n_main = next((p for p in n_paths if p.path_id == main_path_id(n_paths)), None)
+    if n_main is None:
+        return mid, elems, notes
+    p_main = next(p for p in p_paths if p.path_id == mid)
+    ppts, ps, _ = p_main.polyline()
+    n_els = _barrel_elements(bm, stackup, target.nets[1], n_main, return_distance)
+    p_vias = [e for e in elems if e["type"] == "via"]
+    for e in p_vias:
+        e["strand"] = "P"
+    for ne in n_els:
+        ne["strand"] = "N"
+        ne["s"] = _project(ppts, ps, ne["pos"])[0]        # abscisse ramenée sur le brin P
+        mate = next((pe for pe in p_vias if pe["strand"] == "P" and pe["layers"] == ne["layers"] and
+                     math.hypot(pe["pos"][0] - ne["pos"][0], pe["pos"][1] - ne["pos"][1]) < match_distance), None)
+        if mate is not None:
+            mate["strand"] = "PN"
+            mate["what"] = f"{mate.get('what', 'via')} + {ne.get('what', 'via')}"
+        else:
+            elems.append(ne)
+    for e in elems:
+        if e["type"] == "via" and e["strand"] != "PN":
+            notes.append(f"{e.get('what', 'via')} ({e['layers']}) sur le seul brin {e['strand']} en s = "
+                         f"{e['s'] * 1e3:.1f} mm : élément asymétrique (conversion de mode non calculée)")
     elems.sort(key=lambda d: d["s"])
     return mid, elems, notes

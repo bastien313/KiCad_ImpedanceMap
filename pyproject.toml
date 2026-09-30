@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "impedance-map"
-version = "0.3.0"
+version = "0.3.1"
 description = "Plugin KiCad 10 : simulateur 2D quasi-statique d'impédance le long des pistes"
 readme = "README.md"
 license = "GPL-3.0-or-later"

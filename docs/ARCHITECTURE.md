@@ -48,7 +48,8 @@ KiCad (API IPC)            fichier .kicad_pcb (+ .kicad_pro)
 | `extraction/sexpr.py`, `file_reader.py` | lecture .kicad_pcb / .kicad_pro | non |
 | `extraction/kipy_reader.py` | lecture en direct (kipy), `wait_idle`, noms/enum de couches | **oui** |
 | `extraction/targets.py` | cibles, paires (netclass puis suffixes), Z depuis le nom de netclass | non |
-| `extraction/sampling.py` | chaînage, échantillonnage, zones de discontinuité | non |
+| `analysis/pair.py` | symétrie d'une paire : longueurs, skew, écart cumulé, part des extrémités découplées | non |
+| `extraction/sampling.py` | chaînage, échantillonnage, zones de discontinuité, tronçons issus des zones du net (`zone_bridges`) | non |
 | `extraction/crosssection.py` | coupe 2D, rôles, références, troncature | non |
 | `analysis/engine.py` | orchestration, parallélisme, stats, vias de retour, résultats JSON | non |
 | `analysis/cache.py` | cache mémoire/disque (`CACHE_VERSION`) | non |
@@ -57,7 +58,7 @@ KiCad (API IPC)            fichier .kicad_pcb (+ .kicad_pro)
 | `viz/overlay_plan.py` | tronçons/étiquettes/marqueurs (pur Python, testable) | non |
 | `viz/overlay_kicad.py` | application kipy, effacement sélectif | **oui** |
 | `viz/report.py` | rapport HTML (matplotlib Agg, data URI) | non |
-| `viz/board_map.py` | carte interactive SVG + JS intégrés (échelles Ω / Ω libre / %, infobulles, zoom) | non |
+| `viz/board_map.py` | carte interactive SVG + JS intégrés : cuivre final par couche, bandes à la largeur mesurée, ligne de coupe au survol, tronçons non calculés regroupés (échelles Ω / Ω libre / %, infobulles, zoom) | non |
 | `synthesis.py` | calcul inverse (Brent sur log w / log s) | non |
 | `ui/controller.py` | logique d'interface commune, réglages persistés | kipy en mode direct |
 | `ui/wx_dialog.py`, `ui/tk_dialog.py` | dialogues | wx / tkinter |
